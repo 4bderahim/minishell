@@ -112,12 +112,12 @@ int main(int argc, char **argv)
     char *envp[] = {NULL};
     int dd;
     
-    int n_pipes = 4;
+    int n_pipes = 3;
     int j = 1;
     int i = 0;
     int s = 0;
     int x[n_pipes-1][2];
-    pid_t pids[n_pipes];  // Array to store child process IDs
+    pid_t pids[n_pipes];  
 
     while (i < n_pipes-1)
     {
@@ -133,10 +133,9 @@ int main(int argc, char **argv)
         if (pids[i] == 0)
         {
             char *envp[] = {NULL};
-            
+            // redirect
             if (i > 0)
                 dup2(x[i-1][0], STDIN_FILENO);
-            
             if (i < n_pipes -1 )
                 dup2(x[i][1],STDOUT_FILENO);
             s = 0;
@@ -147,9 +146,9 @@ int main(int argc, char **argv)
                 s++;
             }
             char *ls_args[] = {argv[j+1], argv[j+2], NULL};
-            execve(argv[j], ls_args, envp);
+            execve(argv[j], ls_args, NULL);
             //pr_fd = x[i][0];
-            //exit(1);
+            exit(1);
         }
          //if (i == 0)
         
@@ -157,12 +156,12 @@ int main(int argc, char **argv)
        j += 3;
     }
      s=0;
-        while (s < n_pipes -1)
-            {
-                close(x[s][1]);
-                close(x[s][0]);
-                s++;
-            }
+    while (s < n_pipes -1)
+        {
+            close(x[s][1]);
+            close(x[s][0]);
+            s++;
+        }
      for (i = 0; i < n_pipes; i++)
     {
         int status;
