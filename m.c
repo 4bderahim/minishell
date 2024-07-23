@@ -102,7 +102,7 @@ void usepipe()
     
 }
 
-int main(int argc, char **argv)
+int smain(int argc, char **argv)
 {
     int t;
     char *line;
@@ -169,7 +169,17 @@ int main(int argc, char **argv)
     }
     return (0);
 }
-
+int main()
+{
+    printf("\t@");
+    int t = fork();
+    if (t == 0)
+    {
+        char *ls_args[] = {"echo", "hewr", NULL};
+        execve("/bin/echo Hello", NULL, NULL);
+    }
+    
+}
 
 
 // int t;
