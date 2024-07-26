@@ -5,6 +5,8 @@ int match_word(char *neadle, char *str)
 {
     int i;
     i = 0;
+    if (!str)   
+        return (0);
     while (str[i])
     {
         if (str[i] != neadle[i])
@@ -28,7 +30,7 @@ int redirect(char *file, char *input)
 // {
 //     if
 // }p_list *p_new(int val)
-void p_addback(cmd_t **head, cmd_t *new)
+void command_addback(cmd_t **head, cmd_t *new)
 {
     cmd_t *tmp;
     if (!head)
@@ -41,7 +43,8 @@ void p_addback(cmd_t **head, cmd_t *new)
         }
     tmp->next = new;
 }
-cmd_t *p_new(char *cmd,char *flags)
+
+cmd_t *command_new(char *cmd,char *flags)
 {
     cmd_t *new;
     new = (cmd_t *) malloc(sizeof(cmd_t));
@@ -95,11 +98,9 @@ void usepipe()
                 // if (i > 0)
                 //     close(fd[i-1][0]);
             }
-
         i++;
         head = head->next;
     }
-    
 }
 
 int smain(int argc, char **argv)

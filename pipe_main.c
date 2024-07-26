@@ -13,11 +13,8 @@ int main(int argc, char **argv)
     int j = 1;
     int i = 0;
     int s = 0;
-
     pid_t pids[n_pipes];  
 
-        
-    
     i = 0;
     while (i < n_pipes)
     {   
@@ -49,13 +46,12 @@ int main(int argc, char **argv)
        j += 3;
     }
     close(pr_fd);
-     
-    
-            
-    for (i = 0; i < n_pipes; i++)
+    i = 0;
+    while (i < n_pipes)
     {
         int status;
         waitpid(pids[i], &status, 0);
+        i++;
     }
     return (0);
 }
