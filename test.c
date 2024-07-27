@@ -6,7 +6,7 @@ void ft_write(char *str, int fd)
         {
             //error
             write(2, "error", 5);
-            //exit(1);
+            exit(1);
         }
 }
 void ft_echo(char **str, int fd)
@@ -21,7 +21,7 @@ void ft_echo(char **str, int fd)
     if (match_word("-n", *str))
         {
             if (str[1] == NULL)
-                //exit(1);
+                exit(1);
             flag = 1;
             i++;
     }
