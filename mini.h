@@ -20,6 +20,8 @@ typedef struct cmd
   struct cmd *next;
   int pipes_n;
 } cmd_t;
+size_t	ft_strlen(char *s);
+void ft_echo(char **str, int fd);
 int write_fd(char *str, int fd);
 char *heredoc(char *heredoc_str, int fd);
 typedef struct s_command_line {

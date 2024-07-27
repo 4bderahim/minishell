@@ -23,38 +23,43 @@ t_cmd *list_new() {
 }
 t_cmd* make(t_cmd *cmd) {
     cmd = list_new(); // For "echo hello > file"
+    t_cmd *cmd1 = list_new(); // For "grep < file.c"
+
     t_cmd *cmd2 = list_new(); // For "grep < file.c"
     t_cmd *cmd3 = list_new(); // For "ls"
 
 
-    // Command 3: ls
-    // cmd->cmd = strdup("sleep");
-    // cmd->full_path = strdup("/bin/sleep"); 
-    // cmd->args = (char **)malloc(sizeof(char *) * 2);
-    // cmd->arg_count = 1;
-    // cmd->args[0] = strdup("sleep");
-    // cmd->args[1] = strdup("3");
-    // cmd->in_file = NULL;
-    // cmd->out_file = NULL;
-    // cmd->append_file = NULL;
-    // cmd->heredoc_delimiter = NULL;
-    // cmd->heredoc_content = NULL;
-    // cmd->pipe = 0; 
+    
+    cmd->cmd = strdup("sleep");
+    cmd->full_path = strdup("/bin/sleep"); 
+    cmd->args = (char **)malloc(sizeof(char *) * 2);
+    cmd->arg_count = 1;
+    cmd->args[0] = strdup("sleep");
+    cmd->args[1] = strdup("3");
+    cmd->in_file = NULL;
+    cmd->out_file = NULL;
+    cmd->append_file = NULL;
+    cmd->heredoc_delimiter = NULL;
+    cmd->heredoc_content = NULL;
+    cmd->pipe = 0; 
 
     // Command 1: echo hello > file
-    cmd->cmd = strdup("cat");
-    cmd->full_path = strdup("/bin/cat"); 
-    cmd->args = (char **)malloc(sizeof(char *) * 3);
-    cmd->arg_count = 2;
-    cmd->args[0] = strdup("cat");
-    cmd->args[1] = NULL;// strdup("2");
-    cmd->args[2] = NULL;
-    cmd->out_file = NULL;//strdup("file");
-    cmd->in_file = "file";
-    cmd->append_file = NULL;
-    cmd->heredoc_delimiter = "<";
-    cmd->heredoc_content = NULL;
-    cmd->pipe = 1; // Pipes to next command
+    cmd1->cmd = strdup("echo");
+    cmd1->full_path = strdup("/bin/echo"); 
+    cmd1->args = (char **)malloc(sizeof(char *) * 3);
+    cmd1->arg_count = 2;
+    cmd1->args[0] = strdup("echo");
+    cmd1->args[1] = strdup("-n" );// strdup("2");
+    cmd1->args[2] = strdup("NULL");
+    cmd1->args[3] = strdup("NUsdLL");
+    cmd1->args[4] = NULL;
+
+    cmd1->out_file = strdup("doneee"); //strdup("file");
+    cmd1->in_file = NULL;
+    cmd1->append_file = NULL;
+    cmd1->heredoc_delimiter = NULL;
+    cmd1->heredoc_content = NULL;
+    cmd1->pipe = 1; // Pipes to next command
 
     // Command 2: grep < file.c
     cmd3->cmd = strdup("grep");
@@ -62,18 +67,16 @@ t_cmd* make(t_cmd *cmd) {
     cmd3->args = (char **)malloc(sizeof(char *) * 2);
     cmd3->arg_count = 1;
     cmd3->args[0] = strdup("grep");
-    cmd3->args[1] = strdup("aa");
+    cmd3->args[1] = strdup("N");
     cmd3->in_file = NULL;//strdup("exec.c");
     cmd3->out_file = NULL;
     cmd3->append_file = NULL;
     cmd3->heredoc_delimiter = NULL;
     cmd3->heredoc_content = NULL;
-    cmd3->pipe = 1; // Pipes to next command
+    cmd3->pipe = 0; // Pipes to next command
 
-    
-
-    cmd->next = cmd3;
-    //cmd2->next = cmd3;
+    cmd->next = cmd1;
+    cmd1->next = cmd3;
     cmd3->next = NULL;
 
     // 
@@ -154,7 +157,7 @@ int main(int argc, char **argv)
     char *envp[] = {NULL};
     int dd;
     
-    int n_pipes = 1;
+    int n_pipes = 3;
     int j = 1;
     int i = 0;
     int s = 0;
@@ -189,6 +192,14 @@ int main(int argc, char **argv)
             redirections_set(cmd);
             heredoc_pipe(cmd);
             char *ls_args[] = {cmd->cmd,cmd->args[1], NULL};
+            if (match_word(cmd->cmd, "echo"))
+                {
+                    if (cmd->pipe == 1)
+                        ft_echo(cmd->args+1 ,STDOUT_FILENO);
+                    else
+                       ft_echo(cmd->args+1 ,STDOUT_FILENO);
+                    exit(0);
+                }
             execve(cmd->full_path, ls_args, NULL);
         }
         if (i !=0 )
@@ -210,88 +221,5 @@ int main(int argc, char **argv)
     return (0);
 }
 
-
-
-
-
-
-// #include "mini.h"
-
-
-
-// int main(int argc, char **argv)
-// {
-//     int t;
-//     char *line;
-//     //usepipe();
-//     int x[2];
-//     int pr_fd;
-//     char *envp[] = {NULL};
-//     int dd;
-    
-//     int n_pipes = 2;
-//     int j = 1;
-//     int i = 0;
-//     int s = 0;
-
-//     pid_t pids[n_pipes];  
-
-        
-//     i = 0;
-//     while (i < n_pipes)
-//     {   
-//         pipe(x);
-//         pids[i] = fork();
-//         if (pids[i] == 0)
-//         {
-//            if (i == 0)
-//            {
-//              int fdfd = open(argv[j+2], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-//              if (fdfd == -1) 
-//                 {
-//                     return 0;
-//                 }
-//              dup2(fdfd, STDOUT_FILENO);
-//              close(fdfd);
-//              dup2(pr_fd, STDIN_FILENO);
-             
-//              char *ls_args[] = {argv[j+1], argv[j+2], NULL};
-//              execve(argv[j], ls_args, NULL);
-//            }
-//            else
-//            {
-//                 char *envp[] = {NULL};
-//                 // redirect
-//                 if (i != 0)
-//                     {
-//                         dup2(pr_fd, STDIN_FILENO);  
-//                         close(pr_fd);
-//                     }
-//                 if (i < n_pipes -1)
-//                     {
-//                         dup2(x[1],STDOUT_FILENO);
-//                         close(x[1]);
-//                     }
-//                     char *ls_args[] = {argv[j+1], argv[j+2], NULL};
-//                     execve(argv[j], ls_args, NULL);
-//            }
-//         }
-//         if (i !=0 )
-//             close(pr_fd);
-//         pr_fd = dup(x[0]);// pr_fd
-//         close(x[1]);
-//         close(x[0]);
-//        i++;
-//        j += 3;
-//     }
-//     close(pr_fd);
-     
-//     for (i = 0; i < n_pipes; i++)
-//     {
-//         int status;
-//         waitpid(pids[i], &status, 0);
-//     }
-//     return (0);
-// }
 
 
