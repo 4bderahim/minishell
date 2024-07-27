@@ -52,7 +52,7 @@ t_cmd* make(t_cmd *cmd) {
     cmd->out_file = NULL;//strdup("file");
     cmd->in_file = "file";
     cmd->append_file = NULL;
-    cmd->heredoc_delimiter = "<<";
+    cmd->heredoc_delimiter = "<";
     cmd->heredoc_content = NULL;
     cmd->pipe = 1; // Pipes to next command
 
@@ -101,7 +101,6 @@ void redirections_set(t_cmd *cmd)
         close(fd);
     }
 }
-
 
 //    if (i == 0)
         //    {

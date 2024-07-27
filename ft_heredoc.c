@@ -22,6 +22,8 @@ int match_word(char *neadle, char *str)
             return (0);
         i++;
     }
+	if (neadle[i] != 0)	
+		return (0);
     return (1);
 }
 static void	join_the_two_strings(char *all, char const *s1, char const *s2)
@@ -89,7 +91,7 @@ char *heredoc(char *heredoc_str, int fd)
     while (1)
     {
         input = readline(">");
-        if (!match_word(heredoc_str, input))
+        if (!match_word( input, heredoc_str))
             {
                 full_str = ft_strjoin(full_str, input);
                 full_str = ft_strjoin(full_str, "\n");
