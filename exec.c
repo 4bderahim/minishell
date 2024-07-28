@@ -30,44 +30,44 @@ t_cmd* make(t_cmd *cmd) {
 
 
     
-    cmd->cmd = strdup("exit");
-    cmd->full_path = strdup("/bin/sleep"); 
+    cmd->cmd = strdup("cat");
+    cmd->full_path = strdup("/bin/cat"); 
     cmd->args = (char **)malloc(sizeof(char *) * 2);
     cmd->arg_count = 1;
-    cmd->args[0] = strdup("sleep");
-    cmd->args[1] = strdup("-aa");
+    cmd->args[0] = strdup("cat");
+    cmd->args[1] = NULL;//strdup("-aa");
     cmd->in_file = NULL;
-    cmd->out_file = NULL;
+    cmd->out_file = "rett";
     cmd->append_file = NULL;
-    cmd->heredoc_delimiter = NULL;
+    cmd->heredoc_delimiter = "s";
     cmd->heredoc_content = NULL;
     cmd->pipe = 1; 
 
     // Command 1: echo hello > file
-    cmd1->cmd = strdup("echo");
-    cmd1->full_path = strdup("/bin/echo"); 
+    cmd1->cmd = strdup("grep");
+    cmd1->full_path = strdup("/usr/bin/grep"); 
     cmd1->args = (char **)malloc(sizeof(char *) * 3);
     cmd1->arg_count = 2;
-    cmd1->args[0] = strdup("echo");
-    cmd1->args[1] = strdup("-n" );// strdup("2");
-    cmd1->args[2] = strdup("NL");
-    cmd1->args[3] = strdup("NUsdLL");
+    cmd1->args[0] = strdup("grep");
+    cmd1->args[1] = strdup("-oE" );// strdup("2");
+    cmd1->args[2] = strdup("\\b\\w{3,}\\b");
+    cmd1->args[3] = NULL;//strdup("NUsdLL");
     cmd1->args[4] = NULL;
 
-    cmd1->out_file = strdup("doneee"); //strdup("file");
-    cmd1->in_file = NULL;
+    cmd1->out_file = NULL;//strdup("doneee"); //strdup("file");
+    cmd1->in_file = "rett";
     cmd1->append_file = NULL;
     cmd1->heredoc_delimiter = NULL;
     cmd1->heredoc_content = NULL;
     cmd1->pipe = 0; // Pipes to next command
 
     // Command 2: grep < file.c
-    cmd3->cmd = strdup("grep");
-    cmd3->full_path = strdup("/usr/bin/grep"); 
+    cmd3->cmd = strdup("sort");
+    cmd3->full_path = strdup("/usr/bin/sort"); 
     cmd3->args = (char **)malloc(sizeof(char *) * 2);
     cmd3->arg_count = 1;
-    cmd3->args[0] = strdup("grep");
-    cmd3->args[1] = strdup("N");
+    cmd3->args[0] = strdup("sort");
+    cmd3->args[1] = NULL;//strdup("N");
     cmd3->in_file = NULL;//strdup("exec.c");
     cmd3->out_file = NULL;
     cmd3->append_file = NULL;
@@ -118,7 +118,7 @@ void heredoc_pipe(t_cmd *cmd)
     if (fd == 0)
     {
         close(p[0]);
-        
+        redirections_set(cmd);
         //cmd->heredoc_content = heredoc(cmd->heredoc_delimiter, 1);
         write(p[1], cmd->heredoc_content, ft_strlen(cmd->heredoc_content));
         close(p[1]);
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
                        ft_echo(cmd->args+1 ,STDOUT_FILENO);
                     exit(0);
                 }
-            if (execve(cmd->full_path, ls_args, NULL) == -1)
+            if (execve(cmd->full_path, cmd->args, NULL) == -1)
                 write_fd(strerror(errno), 2);
             exit(1);
         }
