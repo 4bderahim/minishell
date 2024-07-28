@@ -61,20 +61,20 @@ void change_dir(char *new_dir)
             exit(1);
         }
 }
-#include <dirent.h>
-int main(int argc, char **argv, char *envp[])
-{
+// #include <dirent.h>
+// int main(int argc, char **argv, char *envp[])
+// {
     
-    char buf[1024];
-    int i;
-    i = 0;
-    while (envp[i])
-        {
-            printf("%s\n", envp[i]);
-            i++;
-        }
-   //char *r = getcwd(buf, 100);
-   // char buf[100];
+//     char buf[1024];
+//     int i;
+//     i = 0;
+//     while (envp[i])
+//         {
+//             printf("%s\n", envp[i]);
+//             i++;
+//         }
+//    //char *r = getcwd(buf, 100);
+//    // char buf[100];
    
-}
+// }
  

@@ -130,7 +130,7 @@ void heredoc_pipe(t_cmd *cmd)
     //int status;
     //waitpid(getpid(), &status, 0);
 }
-int masin(int argc, char **argv)
+int main(int argc, char **argv)
 {
     int t;
     char *line;
