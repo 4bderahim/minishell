@@ -9,7 +9,7 @@
 #include <string.h>
 # include <unistd.h>
 # include <stdlib.h>
-
+#include <errno.h>
 int match_word(char *neadle, char *str);
 size_t	ft_strlen(char *s);
 typedef struct cmd

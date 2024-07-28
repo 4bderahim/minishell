@@ -36,9 +36,24 @@ void ft_echo(char **str, int fd)
     if (flag == 1)
         ft_write("\n", fd);
 }
+void ft_pwd()
+{
+    char buff[1024];
+    char *ret;
+
+    ret = getcwd(buff, 1024);
+    if (ret == NULL)
+    {
+        //error
+        exit(1);
+    }
+    ft_write(ret, 1);
+
+}
+
 void change_dir(char *new_dir)
 {
-    if (chdir(new_dir) == -1)  
+    if (chdir(new_dir) == -1) 
         {
             ft_write( "bash: cd: ", 2);
             ft_write(new_dir, 2);
@@ -46,13 +61,20 @@ void change_dir(char *new_dir)
             exit(1);
         }
 }
-// int main()
-// {
-//     char buf[100];
+#include <dirent.h>
+int main(int argc, char **argv, char *envp[])
+{
     
-//     change_dir("asdas");
-//     getcwd(buf, 100);
-//     printf("%s\n", buf);
-        
-// }
+    char buf[1024];
+    int i;
+    i = 0;
+    while (envp[i])
+        {
+            printf("%s\n", envp[i]);
+            i++;
+        }
+   //char *r = getcwd(buf, 100);
+   // char buf[100];
+   
+}
  

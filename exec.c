@@ -30,18 +30,18 @@ t_cmd* make(t_cmd *cmd) {
 
 
     
-    cmd->cmd = strdup("sleep");
+    cmd->cmd = strdup("exit");
     cmd->full_path = strdup("/bin/sleep"); 
     cmd->args = (char **)malloc(sizeof(char *) * 2);
     cmd->arg_count = 1;
     cmd->args[0] = strdup("sleep");
-    cmd->args[1] = strdup("3");
+    cmd->args[1] = strdup("-aa");
     cmd->in_file = NULL;
     cmd->out_file = NULL;
     cmd->append_file = NULL;
     cmd->heredoc_delimiter = NULL;
     cmd->heredoc_content = NULL;
-    cmd->pipe = 0; 
+    cmd->pipe = 1; 
 
     // Command 1: echo hello > file
     cmd1->cmd = strdup("echo");
@@ -50,7 +50,7 @@ t_cmd* make(t_cmd *cmd) {
     cmd1->arg_count = 2;
     cmd1->args[0] = strdup("echo");
     cmd1->args[1] = strdup("-n" );// strdup("2");
-    cmd1->args[2] = strdup("NULL");
+    cmd1->args[2] = strdup("NL");
     cmd1->args[3] = strdup("NUsdLL");
     cmd1->args[4] = NULL;
 
@@ -59,7 +59,7 @@ t_cmd* make(t_cmd *cmd) {
     cmd1->append_file = NULL;
     cmd1->heredoc_delimiter = NULL;
     cmd1->heredoc_content = NULL;
-    cmd1->pipe = 1; // Pipes to next command
+    cmd1->pipe = 0; // Pipes to next command
 
     // Command 2: grep < file.c
     cmd3->cmd = strdup("grep");
@@ -104,21 +104,6 @@ void redirections_set(t_cmd *cmd)
         close(fd);
     }
 }
-
-//    if (i == 0)
-        //    {
-        //      int fdfd = open(argv[j+2], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-        //      if (fdfd == -1) 
-        //         {
-        //             return 0;
-        //         }
-        //      dup2(fdfd, STDOUT_FILENO);
-        //      close(fdfd);
-        //      dup2(pr_fd, STDIN_FILENO);
-             
-        //      char *ls_args[] = {argv[j+1], argv[j+2], NULL};
-        //      execve(argv[j], ls_args, NULL);
-        //    }
 void heredoc_pipe(t_cmd *cmd)
 {
     int fd;
@@ -145,7 +130,7 @@ void heredoc_pipe(t_cmd *cmd)
     //int status;
     //waitpid(getpid(), &status, 0);
 }
-int main(int argc, char **argv)
+int masin(int argc, char **argv)
 {
     int t;
     char *line;
@@ -174,6 +159,8 @@ int main(int argc, char **argv)
     i = 0;
     while (i < n_pipes)
     {   
+        if (match_word(cmd->cmd, "exit") && i == 0)
+            exit(0);
         pipe(x);
         pids[i] = fork();
         if (pids[i] == 0)
@@ -200,7 +187,9 @@ int main(int argc, char **argv)
                        ft_echo(cmd->args+1 ,STDOUT_FILENO);
                     exit(0);
                 }
-            execve(cmd->full_path, ls_args, NULL);
+            if (execve(cmd->full_path, ls_args, NULL) == -1)
+                write_fd(strerror(errno), 2);
+            exit(1);
         }
         if (i !=0 )
             close(pr_fd);
