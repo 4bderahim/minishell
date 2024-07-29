@@ -61,18 +61,86 @@ void change_dir(char *new_dir)
             exit(1);
         }
 }
-// #include <dirent.h>
+t_env *env_new(char *new_line)
+{
+    t_env *new;
+    new = (t_env *) malloc(sizeof(t_env));
+    if (!new)
+        exit(1);
+    new->line = strdup(new_line);
+    new->next = NULL;
+    return (new);
+}
+
+t_env *env_getlast(t_env *env)
+{
+    t_env *tmp;
+    tmp = env;
+
+    if (env == NULL)
+        return NULL;
+    while (tmp != NULL)
+    {
+        
+        if (tmp->next == NULL)
+            return (tmp);
+        tmp = tmp->next;
+    }
+    return (NULL);
+}
+void env_addback(t_env *head, t_env *new)
+{
+    t_env *tmp;
+    if (!head)
+        {
+            if (new == NULL)
+                return ;
+            head = new;
+            return ;
+        }
+    tmp = head;
+    while (tmp != NULL)
+    {
+        if (tmp->next == NULL)
+        {
+            tmp->next = new;
+            break;
+        }
+        tmp = tmp->next;
+    }
+}
+t_env *create_env_list(char **env)
+{
+    int i;
+    t_env *head;
+
+    head = env_new(env[0]);
+    i = 1;
+    while (env[i])
+    {
+        env_addback(head,env_new(env[i]));
+        i++;
+    }
+    return (head);
+}
 // int main(int argc, char **argv, char *envp[])
 // {
+    
     
 //     char buf[1024];
 //     int i;
 //     i = 0;
-//     while (envp[i])
-//         {
-//             printf("%s\n", envp[i]);
-//             i++;
-//         }
+//     //t_env *f = create_env_list(envp);
+//     extern char **environ;
+//     char **s = environ ;
+//     while ( f != NULL)
+//     {
+//         //printf("%s\n", s[i]);
+//         printf("[[%s]]\n", f->line);
+//       i++;
+//         f = f->next;
+//     }
+
 //    //char *r = getcwd(buf, 100);
 //    // char buf[100];
    
