@@ -28,16 +28,24 @@ t_cmd* make(t_cmd *cmd, char **envp) {
     t_cmd *cmd2 = list_new(); // For "grep < file.c"
     t_cmd *cmd3 = list_new(); // For "ls"
     t_env *f = create_env_list(envp);
-
+    // t_env *qq = f;
     
-    cmd->cmd = strdup("cat");
-    cmd->full_path = strdup("/bin/cat"); 
+    // while (qq != NULL)
+    // {
+    //     write(2, qq->line, ft_strlen(qq->line));
+    //     write(2, "\n", 1);
+    //     qq = qq->next;
+    // }
+    
+    
+    cmd->cmd = strdup("echo");
+    cmd->full_path = strdup("/bin/echo"); 
     cmd->args = (char **)malloc(sizeof(char *) * 2);
     cmd->arg_count = 1;
-    cmd->args[0] = strdup("cat");
-    cmd->args[1] = NULL;//strdup("-aa");
+    cmd->args[0] = strdup("echo");
+    cmd->args[1] = strdup("-112");
     cmd->in_file = NULL;
-    cmd->out_file = "rett";
+    cmd->out_file = "aa";//"rett";
     cmd->append_file = NULL;
    // cmd->heredoc_delimiter = "s";
     cmd->heredoc_content = NULL;
@@ -50,17 +58,17 @@ t_cmd* make(t_cmd *cmd, char **envp) {
     cmd1->args = (char **)malloc(sizeof(char *) * 3);
     cmd1->arg_count = 2;
     cmd1->args[0] = strdup("grep");
-    cmd1->args[1] = strdup("-oE" );// strdup("2");
-    cmd1->args[2] = strdup("\\b\\w{3,}\\b");
+    cmd1->args[1] = strdup("112" );// strdup("2");
+    cmd1->args[2] = NULL;//strdup("\\b\\w{3,}\\b");
     cmd1->args[3] = NULL;//strdup("NUsdLL");
     cmd1->args[4] = NULL;
     cmd1->env = f;
     cmd1->out_file = NULL;//strdup("doneee"); //strdup("file");
-    cmd1->in_file = "rett";
+    cmd1->in_file =  "aa";// "rett";
     cmd1->append_file = NULL;
     cmd1->heredoc_delimiter = NULL;
     cmd1->heredoc_content = NULL;
-    cmd1->pipe = 0; // Pipes to next command
+    cmd1->pipe = 1; // Pipes to next command
 
     // Command 2: grep < file.c
     cmd3->cmd = strdup("sort");
@@ -81,7 +89,7 @@ t_cmd* make(t_cmd *cmd, char **envp) {
     cmd3->next = NULL;
 
     // 
-
+    
     return cmd;
 }
 void redirections_set(t_cmd *cmd) 
@@ -133,50 +141,8 @@ void heredoc_pipe(t_cmd *cmd)
 }
 
 
-int count_quots(char *str)
-{
-    int i;
-    int s_count;
-    int d_count;
-
-    s_count = 0;
-    d_count = 0;
-    i = 0;
-    while (str[i])
-    {
-        if (str[i] == "\'")
-            s_count++;
-        if (str[i] == "\"")
-            d_count++;
-        i++;
-    }
-    if (s_count%2 || d_count%2)
-        return (-1);
-    return (1);
-}
-char *parse_export_args(t_cmd *args)
-{
-    char *full;
-    int i;
-
-    full = (char *)malloc(1);
-    if (full == NULL)
-        exit(1);
-    full[0] = 0;
-    i = 0;
-    while (args->args[i])
-    {
-        full = ft_strjoin(full, args->args[i]);
-        i++;
-    }
-    return (full);
-
-}
-// "command"
-// export > "a"='b' 
 void exec_built_ins(t_cmd *cmd)
 {
-    t_env *env;
     int i;
     char *str;
 
@@ -191,50 +157,38 @@ void exec_built_ins(t_cmd *cmd)
         }
     if (match_word(cmd->cmd, "export"))
     {
-        if (cmd->args[0] == NULL)
-            exit(0);
         if (cmd->args[1] != NULL)
-            str = parse_export_args(cmd);   
-        else
-            str = cmd->args[0];
-        while (str[i])
-        {
-            if (str[i]= '\"')
-                {
-                    write(2, "not a valid identifier", 22);
-                    exit(1);
-                }
-            if (count_quots(str) == -1)
-                exit(1);
-            i++;
-        }
-
-        i = 0;
+            exit(0);
         while (cmd->args[i])
         {
-            env = env_getlast(cmd->env);
-            if (env == NULL)
-                return ;
-            env->next = env_new(cmd->cmd);
+            parse_indetifier(cmd, cmd->args[i]);
             i++;
         }
     }
-    
+    else
+        return ;
+    exit(1);
 }
-
-int main(int argc, char **argv, char **envp)
+void signal_handler()
+{
+    write(2, "quit\n", 5);
+}
+int main(int argc, char **argv, char *envp[])
 {
     int t;
     char *line;
     t_cmd *cmd, *f;
     cmd = make(cmd, envp);
+    //t_env *ff = create_env_list(envp);
+    
+
     //usepipe();
     int x[2];
     int pr_fd;
    // char *envp[] = {NULL};
     int dd;
     
-    int n_pipes = 3;
+    int n_pipes = 2;
     int j = 1;
     int i = 0;
     int s = 0;
@@ -249,6 +203,7 @@ int main(int argc, char **argv, char **envp)
     }
     pid_t pids[n_pipes];  
     i = 0;
+    signal(SIGINT, signal_handler);
     while (i < n_pipes)
     {   
         if (match_word(cmd->cmd, "exit") && i == 0)
@@ -271,11 +226,11 @@ int main(int argc, char **argv, char **envp)
             redirections_set(cmd);
             heredoc_pipe(cmd);
             char *ls_args[] = {cmd->cmd,cmd->args[1], NULL};
-            //exec_built_ins(cmd); not completed!
-           
+            exec_built_ins(cmd); //not completed!
+            
             if (execve(cmd->full_path, cmd->args, NULL) == -1)
                 write_fd(strerror(errno), 2);
-            exit(1);
+            //exit(1);
         }
         if (i !=0 )
             close(pr_fd);
@@ -283,7 +238,6 @@ int main(int argc, char **argv, char **envp)
         close(x[1]);
         close(x[0]);
        i++;
-       j += 3;
        cmd = cmd->next ;
     }
     close(pr_fd);
@@ -293,6 +247,8 @@ int main(int argc, char **argv, char **envp)
         int status;
         waitpid(pids[i], &status, 0);
     }
+    
+
     return (0);
 }
 

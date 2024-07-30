@@ -79,35 +79,42 @@ t_env *env_getlast(t_env *env)
 
     if (env == NULL)
         return NULL;
-    while (tmp != NULL)
+    if (env->next == NULL)
+        return (env);
+    while (tmp->next != NULL)
     {
-        
-        if (tmp->next == NULL)
-            return (tmp);
         tmp = tmp->next;
     }
-    return (NULL);
+    return (tmp);
 }
+
+// void env_addback(t_env *head, t_env *new)
+// {
+// 	t_list	*tmp;
+
+// 	if (!head)
+// 		return ;
+// 	tmp = p_last(*head);
+// 	if (!tmp)
+// 	{
+// 		*head = new;
+// 		return ;
+// 	}
+// 	tmp->next = new;
+// 	new->prev = tmp;
+// }
 void env_addback(t_env *head, t_env *new)
 {
     t_env *tmp;
-    if (!head)
-        {
-            if (new == NULL)
-                return ;
-            head = new;
-            return ;
-        }
-    tmp = head;
-    while (tmp != NULL)
-    {
-        if (tmp->next == NULL)
-        {
-            tmp->next = new;
-            break;
-        }
-        tmp = tmp->next;
-    }
+    // if (!head)
+    //     {
+    //         if (new == NULL)
+    //             return ;
+    //         head = new;
+    //         return ;
+    //     }
+    tmp = env_getlast(head);
+    tmp->next = new;
 }
 t_env *create_env_list(char **env)
 {
@@ -123,16 +130,23 @@ t_env *create_env_list(char **env)
     }
     return (head);
 }
-// int main(int argc, char **argv, char *envp[])
+// int main(int argc, char **argv, c har *envp[])
 // {
     
-    
-//     char buf[1024];
+//     // char *s = readline(">") ;
+//     // printf("[%s]\n", s);
+//     // char buf[1024];
 //     int i;
-//     i = 0;
-//     //t_env *f = create_env_list(envp);
+//    i = 0;
+//     t_env *f = create_env_list(envp);
 //     extern char **environ;
 //     char **s = environ ;
+//     // while (envp[i])
+//     // {
+//     //     printf("%s\n")
+//     //     i++;
+//     // }
+    
 //     while ( f != NULL)
 //     {
 //         //printf("%s\n", s[i]);
@@ -144,5 +158,5 @@ t_env *create_env_list(char **env)
 //    //char *r = getcwd(buf, 100);
 //    // char buf[100];
    
-// }
+//  }
  
