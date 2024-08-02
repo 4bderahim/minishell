@@ -18,7 +18,7 @@ typedef struct s_env{
   struct s_env *next;
   struct s_env *prev;
 } t_env;
-extern char **environ;
+
 typedef struct s_command_line {
 char *cmd; 
 char *full_path; 
@@ -34,7 +34,8 @@ int pipe;
 t_env *env;
 struct s_command_line *next;
 } t_cmd;
-void change_dir(t_cmd *cmd, char *new_dir);
+void    ft_write(char *str, int fd);
+void    change_dir(t_cmd *cmd, char *new_dir);
 void    ft_pwd(t_cmd *cmd);
 void    parse_indetifier(t_cmd *cmd, char *str);
 void    env_addback(t_env *head, t_env *new);

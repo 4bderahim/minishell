@@ -41,7 +41,7 @@ void ft_pwd(t_cmd *cmd)
 {
     char buff[1024];
     char *ret;
-
+    write(2, "#done#", 6);
     ret = getcwd(buff, 1024);
     if (ret == NULL)
     {
@@ -99,12 +99,12 @@ void change_dir(t_cmd *cmd, char *new_dir)
      t_env *ff = cmd->env;
     
     add_to_env(cmd, new_dir);
-    while (ff != NULL)
-    {
-        write(2, ff->line, ft_strlen(ff->line));
-        write(2, "\n", 1);
-        ff = ff->next;
-    }
+    // while (ff != NULL)
+    // {
+    //     write(2, ff->line, ft_strlen(ff->line));
+    //     write(2, "\n", 1);
+    //     ff = ff->next;
+    // }
 }
 t_env *env_new(char *new_line)
 {

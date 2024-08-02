@@ -50,16 +50,16 @@ t_cmd* make(t_cmd *cmd, char **envp) {
     cmd->append_file = NULL;
     cmd->heredoc_delimiter = NULL;//"s";
     cmd->heredoc_content = NULL;
-    cmd->pipe = 0; 
+    cmd->pipe = 1; 
     cmd->env = f;
 
     // Command 1: echo hello > file
-    cmd1->cmd = strdup("grep");
-    cmd1->full_path = strdup("/usr/bin/grep"); 
+    cmd1->cmd = strdup("ls");
+    cmd1->full_path = strdup("/bin/ls"); 
     cmd1->args = (char **)malloc(sizeof(char *) * 3);
     cmd1->arg_count = 2;
-    cmd1->args[0] = strdup("grep");
-    cmd1->args[1] = strdup("l");// strdup("2");
+    cmd1->args[0] = strdup("ls");
+    cmd1->args[1] = strdup("-la");// strdup("2");
     cmd1->args[2] = NULL;//strdup("\\b\\w{3,}\\b");
     //cmd1->args[3] = NULL;//strdup("NUsdLL");
    // cmd1->args[4] = NULL;
@@ -141,7 +141,21 @@ void heredoc_pipe(t_cmd *cmd)
     //waitpid(getpid(), &status, 0);
 }
 
-
+void print_env_list(t_cmd *cmd)
+{
+    t_env *tmp;
+    tmp = cmd->env;
+    int i;
+    i = 0;
+    while (tmp != NULL)
+    {
+        if (cmd->pipe)  
+            ft_write(tmp->line, STDIN_FILENO);
+        else
+            ft_write(tmp->line, STDOUT_FILENO);
+        i++;
+    }
+}
 void exec_built_ins(t_cmd *cmd)
 {
     int i;
@@ -151,11 +165,13 @@ void exec_built_ins(t_cmd *cmd)
     if (match_word(cmd->cmd, "echo"))
         {
             if (cmd->pipe == 1)
-                ft_echo(cmd->args+1 ,STDOUT_FILENO);
+                ft_echo(cmd->args+1, STDOUT_FILENO);
             else
-                ft_echo(cmd->args+1 ,STDOUT_FILENO);
+                ft_echo(cmd->args+1, STDOUT_FILENO);
             exit(0);
         }
+    if (match_word(cmd->cmd, "env"))
+        print_env_list(cmd);
     if (match_word(cmd->cmd, "export"))
     {
         if (cmd->args[1] != NULL)
@@ -168,8 +184,8 @@ void exec_built_ins(t_cmd *cmd)
     }
     if (match_word(cmd->cmd, "pwd"))
         ft_pwd(cmd);
-     if (match_word(cmd->cmd, "cd"))
-         change_dir(cmd, cmd->args[1]);
+    //  if (match_word(cmd->cmd, "cd"))
+    //      change_dir(cmd, cmd->args[1]);
     else
         return ;
     //char *ls_args[] = {cmd->cmd,cmd->args[1], NULL};
@@ -213,13 +229,14 @@ void reset_signal_handlers() {
     // signal(SIGQUIT, SIG_DFL);
     // signal(SIGTSTP, SIG_DFL);
 }
+extern char **environ;
 int main(int argc, char **argv, char *envp[])
 {
     int t;
     char *line;
     t_cmd *cmd, *f;
     cmd = make(cmd, envp);
-    t_env *ff = create_env_list(envp);
+   // t_env *ff = create_env_list(envp);
     
 
     //usepipe();
@@ -228,7 +245,7 @@ int main(int argc, char **argv, char *envp[])
    // char *envp[] = {NULL};
     int dd;
     setup_signal_handlers();
-    int n_pipes = 1;
+    int n_pipes = 2;
     int j = 1;
     int i = 0;
     int s = 0;
@@ -241,8 +258,17 @@ int main(int argc, char **argv, char *envp[])
             }
         f = f->next;
     }
-    pid_t pids[n_pipes];  
     i = 0;
+    if (match_word(cmd->cmd, "cd") )
+            {
+                if (!cmd->pipe)
+                    change_dir(cmd, cmd->args[1]);
+                cmd = cmd->next ;
+                i++;
+            }
+   
+    pid_t pids[n_pipes];  
+
     while (i < n_pipes)
     {   
         //char *s = readline(">>");
@@ -267,14 +293,12 @@ int main(int argc, char **argv, char *envp[])
             redirections_set(cmd);
             heredoc_pipe(cmd);
             char *ls_args[] = {cmd->cmd,cmd->args[1], NULL};
-            
             exec_built_ins(cmd); //not completed!
-            
+
             if (execve(cmd->full_path, cmd->args, NULL) == -1)
                 write_fd(strerror(errno), 2);
             //exit(1);
         }
-        
         if (i !=0 )
             close(pr_fd);
         pr_fd = dup(x[0]);// pr_fd
