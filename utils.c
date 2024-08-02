@@ -175,6 +175,7 @@ t_env *create_env_list(char **env)
         env_addback(head,env_new(env[i]));
         i++;
     }
+    printf("-----------%s-----\n", env[0]);
     return (head);
 }
 // int main(int argc, char **argv, c har *envp[])

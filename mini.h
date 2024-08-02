@@ -18,7 +18,7 @@ typedef struct s_env{
   struct s_env *next;
   struct s_env *prev;
 } t_env;
-
+extern char **environ;
 typedef struct s_command_line {
 char *cmd; 
 char *full_path; 

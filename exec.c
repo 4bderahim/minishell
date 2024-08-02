@@ -43,14 +43,14 @@ t_cmd* make(t_cmd *cmd, char **envp) {
     cmd->args = (char **)malloc(sizeof(char *) * 3);
     cmd->arg_count = 1;
     cmd->args[0] = strdup("cd");
-    cmd->args[1] = strdup("..");
+    cmd->args[1] = strdup("/Users");
     cmd->args[2] = NULL;
     cmd->in_file = NULL;
     cmd->out_file = NULL;//"rett";
     cmd->append_file = NULL;
     cmd->heredoc_delimiter = NULL;//"s";
     cmd->heredoc_content = NULL;
-    cmd->pipe = 1; 
+    cmd->pipe = 0; 
     cmd->env = f;
 
     // Command 1: echo hello > file
@@ -168,10 +168,13 @@ void exec_built_ins(t_cmd *cmd)
     }
     if (match_word(cmd->cmd, "pwd"))
         ft_pwd(cmd);
-    if (match_word(cmd->cmd, "cd"))
-        change_dir(cmd, cmd->args[1]);
+     if (match_word(cmd->cmd, "cd"))
+         change_dir(cmd, cmd->args[1]);
     else
         return ;
+    //char *ls_args[] = {cmd->cmd,cmd->args[1], NULL};
+
+    //execve("/bin/ls",ls_args , NULL);
     exit(1);
 }
 
@@ -225,7 +228,7 @@ int main(int argc, char **argv, char *envp[])
    // char *envp[] = {NULL};
     int dd;
     setup_signal_handlers();
-    int n_pipes = 2;
+    int n_pipes = 1;
     int j = 1;
     int i = 0;
     int s = 0;
@@ -250,7 +253,7 @@ int main(int argc, char **argv, char *envp[])
         if (pids[i] == 0)
         {
             reset_signal_handlers();
-            char *envp[] = {NULL};
+            //char *envp[] = {NULL};
             if (i != 0)
                 {
                     dup2(pr_fd, STDIN_FILENO);  
