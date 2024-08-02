@@ -38,16 +38,17 @@ t_cmd* make(t_cmd *cmd, char **envp) {
     // }
     
     
-    cmd->cmd = strdup("echo");
-    cmd->full_path = strdup("/bin/echo"); 
-    cmd->args = (char **)malloc(sizeof(char *) * 2);
+    cmd->cmd = strdup("cd");
+    cmd->full_path = strdup("/usr/bin/cd"); 
+    cmd->args = (char **)malloc(sizeof(char *) * 3);
     cmd->arg_count = 1;
-    cmd->args[0] = strdup("echo");
-    cmd->args[1] = strdup("-112");
+    cmd->args[0] = strdup("cd");
+    cmd->args[1] = strdup("..");
+    cmd->args[2] = NULL;
     cmd->in_file = NULL;
-    cmd->out_file = "aa";//"rett";
+    cmd->out_file = NULL;//"rett";
     cmd->append_file = NULL;
-   // cmd->heredoc_delimiter = "s";
+    cmd->heredoc_delimiter = NULL;//"s";
     cmd->heredoc_content = NULL;
     cmd->pipe = 1; 
     cmd->env = f;
@@ -58,17 +59,17 @@ t_cmd* make(t_cmd *cmd, char **envp) {
     cmd1->args = (char **)malloc(sizeof(char *) * 3);
     cmd1->arg_count = 2;
     cmd1->args[0] = strdup("grep");
-    cmd1->args[1] = strdup("112" );// strdup("2");
+    cmd1->args[1] = strdup("l");// strdup("2");
     cmd1->args[2] = NULL;//strdup("\\b\\w{3,}\\b");
-    cmd1->args[3] = NULL;//strdup("NUsdLL");
-    cmd1->args[4] = NULL;
+    //cmd1->args[3] = NULL;//strdup("NUsdLL");
+   // cmd1->args[4] = NULL;
     cmd1->env = f;
     cmd1->out_file = NULL;//strdup("doneee"); //strdup("file");
-    cmd1->in_file =  "aa";// "rett";
+   // cmd1->in_file =  "aa";// "rett";
     cmd1->append_file = NULL;
     cmd1->heredoc_delimiter = NULL;
     cmd1->heredoc_content = NULL;
-    cmd1->pipe = 1; // Pipes to next command
+    cmd1->pipe = 0; // Pipes to next command
 
     // Command 2: grep < file.c
     cmd3->cmd = strdup("sort");
@@ -165,13 +166,49 @@ void exec_built_ins(t_cmd *cmd)
             i++;
         }
     }
+    if (match_word(cmd->cmd, "pwd"))
+        ft_pwd(cmd);
+    if (match_word(cmd->cmd, "cd"))
+        change_dir(cmd, cmd->args[1]);
     else
         return ;
     exit(1);
 }
-void signal_handler()
-{
-    write(2, "quit\n", 5);
+
+void signal_handler(int signo) {
+    
+    
+    if (signo == SIGINT)
+        {
+            printf("\n");
+            rl_on_new_line();
+           // rl_replace_line("", 0);// fix compiling 
+            rl_redisplay();
+            }
+    if (signo == SIGQUIT)
+        {
+            printf("\n");
+            // rl_on_new_line();
+        }
+}
+void setup_signal_handlers() {
+    struct sigaction sa;
+    sa.sa_handler = signal_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+
+    sigaction(SIGINT, &sa, NULL);
+
+    sigaction(SIGTSTP, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
+}
+
+
+
+void reset_signal_handlers() {
+    signal(SIGINT, SIG_DFL);
+    // signal(SIGQUIT, SIG_DFL);
+    // signal(SIGTSTP, SIG_DFL);
 }
 int main(int argc, char **argv, char *envp[])
 {
@@ -179,7 +216,7 @@ int main(int argc, char **argv, char *envp[])
     char *line;
     t_cmd *cmd, *f;
     cmd = make(cmd, envp);
-    //t_env *ff = create_env_list(envp);
+    t_env *ff = create_env_list(envp);
     
 
     //usepipe();
@@ -187,7 +224,7 @@ int main(int argc, char **argv, char *envp[])
     int pr_fd;
    // char *envp[] = {NULL};
     int dd;
-    
+    setup_signal_handlers();
     int n_pipes = 2;
     int j = 1;
     int i = 0;
@@ -203,15 +240,16 @@ int main(int argc, char **argv, char *envp[])
     }
     pid_t pids[n_pipes];  
     i = 0;
-    signal(SIGINT, signal_handler);
     while (i < n_pipes)
     {   
+        //char *s = readline(">>");
         if (match_word(cmd->cmd, "exit") && i == 0)
             exit(0);
         pipe(x);
         pids[i] = fork();
         if (pids[i] == 0)
         {
+            reset_signal_handlers();
             char *envp[] = {NULL};
             if (i != 0)
                 {
@@ -226,12 +264,14 @@ int main(int argc, char **argv, char *envp[])
             redirections_set(cmd);
             heredoc_pipe(cmd);
             char *ls_args[] = {cmd->cmd,cmd->args[1], NULL};
+            
             exec_built_ins(cmd); //not completed!
             
             if (execve(cmd->full_path, cmd->args, NULL) == -1)
                 write_fd(strerror(errno), 2);
             //exit(1);
         }
+        
         if (i !=0 )
             close(pr_fd);
         pr_fd = dup(x[0]);// pr_fd
@@ -239,6 +279,7 @@ int main(int argc, char **argv, char *envp[])
         close(x[0]);
        i++;
        cmd = cmd->next ;
+       
     }
     close(pr_fd);
      

@@ -16,6 +16,7 @@ size_t	ft_strlen(char *s);
 typedef struct s_env{
   char *line;
   struct s_env *next;
+  struct s_env *prev;
 } t_env;
 
 typedef struct s_command_line {
@@ -33,7 +34,9 @@ int pipe;
 t_env *env;
 struct s_command_line *next;
 } t_cmd;
-void parse_indetifier(t_cmd *cmd, char *str);
+void change_dir(t_cmd *cmd, char *new_dir);
+void    ft_pwd(t_cmd *cmd);
+void    parse_indetifier(t_cmd *cmd, char *str);
 void    env_addback(t_env *head, t_env *new);
 char    *ft_strjoin(char *s1, char *s2);
 t_env   *env_new(char *new_line);

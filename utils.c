@@ -5,7 +5,7 @@ void ft_write(char *str, int fd)
     if (write(fd, str, ft_strlen(str)) == -1)
         {
             //error
-            write(2, "error", 5);
+            write(2, "error\n", 6);
             exit(1);
         }
 }
@@ -35,8 +35,9 @@ void ft_echo(char **str, int fd)
 
     if (flag == 1)
         ft_write("\n", fd);
+
 }
-void ft_pwd()
+void ft_pwd(t_cmd *cmd)
 {
     char buff[1024];
     char *ret;
@@ -45,21 +46,65 @@ void ft_pwd()
     if (ret == NULL)
     {
         //error
+        write(2,"error\n", 6);
         exit(1);
     }
-    ft_write(ret, 1);
+    if (cmd->pipe == 1)
+        {
+            ft_write(ret,STDOUT_FILENO );
+            ft_write("\n", STDOUT_FILENO);
+        }
+    else    
+        ft_write(ret, STDIN_FILENO);
 
 }
-
-void change_dir(char *new_dir)
+void add_to_env(t_cmd *cmd, char *new_dir)
 {
-    if (chdir(new_dir) == -1) 
+    t_env *tmp;
+    t_cmd *tmp2;
+    t_cmd *tmp_to_del;
+    tmp = cmd->env;
+    //more checks here for SEGV
+     while (tmp != NULL)
+     {
+        if ( ft_strlen(tmp->line) > 3 &&
+         tmp->line[0] == 'P' && tmp->line[1] == 'W' && tmp->line[2] == 'D')
+         {
+           // tmp_to_del = tmp;
+            if (tmp->next != NULL)
+            {
+                tmp->prev->next = tmp->next;
+                tmp->next->prev = tmp->prev->next;
+                free(tmp);
+                env_addback(tmp, env_new(new_dir));
+                return ;
+            }
+            tmp->prev->next = NULL;
+            free(tmp);
+            env_addback(tmp, env_new(new_dir));
+            return ;
+         }
+        tmp = tmp->next;
+     }
+}
+void change_dir(t_cmd *cmd, char *new_dir)
+{
+    if (cmd->pipe || chdir(new_dir) == -1) 
         {
             ft_write( "bash: cd: ", 2);
             ft_write(new_dir, 2);
             ft_write(": No such file or directory\n", 2);
             exit(1);
         }
+     t_env *ff = cmd->env;
+    
+    add_to_env(cmd, new_dir);
+    while (ff != NULL)
+    {
+        write(2, ff->line, ft_strlen(ff->line));
+        write(2, "\n", 1);
+        ff = ff->next;
+    }
 }
 t_env *env_new(char *new_line)
 {
@@ -69,6 +114,7 @@ t_env *env_new(char *new_line)
         exit(1);
     new->line = strdup(new_line);
     new->next = NULL;
+    new->prev = NULL;
     return (new);
 }
 
@@ -115,6 +161,7 @@ void env_addback(t_env *head, t_env *new)
     //     }
     tmp = env_getlast(head);
     tmp->next = new;
+    new->prev = tmp;
 }
 t_env *create_env_list(char **env)
 {
