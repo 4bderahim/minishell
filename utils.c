@@ -67,8 +67,8 @@ void add_to_env(t_cmd *cmd, char *new_dir)
     //more checks here for SEGV
      while (tmp != NULL)
      {
-        if ( ft_strlen(tmp->line) > 3 &&
-         tmp->line[0] == 'P' && tmp->line[1] == 'W' && tmp->line[2] == 'D')
+        if ( ft_strlen(tmp->variable) > 3 &&
+         tmp->variable[0] == 'P' && tmp->variable[1] == 'W' && tmp->variable[2] == 'D')
          {
            // tmp_to_del = tmp;
             if (tmp->next != NULL)
@@ -109,10 +109,25 @@ void change_dir(t_cmd *cmd, char *new_dir)
 t_env *env_new(char *new_line)
 {
     t_env *new;
+    int i;
+    i = 0;
+    while(new_line[i])
+    {
+        if (new_line[i] == '=')
+            {
+                new_line[i] = '\0';
+                i++;
+                break;
+            }
+        i++;
+    }
     new = (t_env *) malloc(sizeof(t_env));
     if (!new)
         exit(1);
-    new->line = strdup(new_line);
+    
+    new->variable = strdup(new_line);
+    new->value = strdup(new_line+i);
+
     new->next = NULL;
     new->prev = NULL;
     return (new);
@@ -163,19 +178,33 @@ void env_addback(t_env *head, t_env *new)
     tmp->next = new;
     new->prev = tmp;
 }
+int get_sign_index(char *line)
+{
+    int index;
+    index = 0;
+    while (line[index])
+    {
+        if (line[index] == '=')
+            return (index);
+        index++;
+    }
+    return (index);
+}
 t_env *create_env_list(char **env)
 {
     int i;
     t_env *head;
+    t_env *last;
 
     head = env_new(env[0]);
     i = 1;
     while (env[i])
     {
-        env_addback(head,env_new(env[i]));
+
+        env_addback(head,env_new(env[i])); 
+        last = env_getlast(head);
         i++;
     }
-    printf("-----------%s-----\n", env[0]);
     return (head);
 }
 // int main(int argc, char **argv, c har *envp[])

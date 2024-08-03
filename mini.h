@@ -12,9 +12,10 @@
 #include <errno.h>
 int match_word(char *neadle, char *str);
 size_t	ft_strlen(char *s);
-
+typedef struct s_all t_all;
 typedef struct s_env{
-  char *line;
+  char *variable;
+  char *value;
   struct s_env *next;
   struct s_env *prev;
 } t_env;
@@ -31,9 +32,20 @@ char *heredoc_delimiter;
 char *heredoc_content; 
 int pipe; 
 
+t_all *all;
 t_env *env;
 struct s_command_line *next;
 } t_cmd;
+typedef struct s_all
+{
+   t_cmd    *cmd; // our parsing struct
+   t_env      *env; // environment variables list
+   //t_exp     *exp; // exported variables list
+   //t_dec     *dec; // declared variables list
+  // ... any other structs
+
+} t_all;
+void    identifier_error(char *indentifer);
 void    ft_write(char *str, int fd);
 void    change_dir(t_cmd *cmd, char *new_dir);
 void    ft_pwd(t_cmd *cmd);
@@ -48,7 +60,7 @@ void    ft_echo(char **str, int fd);
 int     write_fd(char *str, int fd);
 char    *heredoc(char *heredoc_str, int fd);
 
-typedef struct s_all {
-  t_cmd *cmd;
-  t_env *env;
-} t_all;
+// typedef struct s_all {
+//   t_cmd *cmd;
+//   t_env *env;
+// } t_all;

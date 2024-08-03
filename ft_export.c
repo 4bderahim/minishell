@@ -57,6 +57,12 @@ void add_it_to_env(t_cmd *cmd, char *new)
     //     ff = ff->next;
     // }
 }
+void identifier_error(char *indentifer)
+{
+    write(2, "export: ", 8);
+    write(2, indentifer, ft_strlen(indentifer));
+    write(2, ": not a valid identifier\n", ft_strlen(": not a valid identifier\n"));
+}
 void parse_indetifier(t_cmd *cmd, char *str)
 {
     int i;
@@ -68,13 +74,13 @@ void parse_indetifier(t_cmd *cmd, char *str)
     ret = check_before_env(str) ;
     if (ret == 0)
     {
-        write(2, str, ft_strlen(str));
-        write(2, ": not a valid identifier\n", ft_strlen(": not a valid identifier\n"));
+        identifier_error(str);
         return ;
     }
     else if(ret == -1)
     {
         //here we should know first if we have to add it to the export list or the env list or do nothing!
     }
+
     add_it_to_env(cmd, str);
 }

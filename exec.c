@@ -38,19 +38,21 @@ t_cmd* make(t_cmd *cmd, char **envp) {
     // }
     
     
-    cmd->cmd = strdup("cd");
+    cmd->cmd = strdup("export");
     cmd->full_path = strdup("/usr/bin/cd"); 
     cmd->args = (char **)malloc(sizeof(char *) * 3);
     cmd->arg_count = 1;
-    cmd->args[0] = strdup("cd");
-    cmd->args[1] = strdup("/Users");
-    cmd->args[2] = NULL;
+    cmd->args[0] = strdup("export");
+    cmd->args[1] = strdup("messi=g");
+    cmd->args[2] = strdup("me\"=ggg");
+    cmd->args[3] = strdup("mess=aag");
+    cmd->args[4] = NULL;
     cmd->in_file = NULL;
     cmd->out_file = NULL;//"rett";
     cmd->append_file = NULL;
     cmd->heredoc_delimiter = NULL;//"s";
     cmd->heredoc_content = NULL;
-    cmd->pipe = 1; 
+    cmd->pipe = 0; 
     cmd->env = f;
 
     // Command 1: echo hello > file
@@ -150,13 +152,19 @@ void print_env_list(t_cmd *cmd)
     while (tmp != NULL)
     {
         if (cmd->pipe)  
-            ft_write(tmp->line, STDIN_FILENO);
+            {
+                ft_write(tmp->variable, STDIN_FILENO);
+                ft_write(tmp->value, STDIN_FILENO);
+            }
         else
-            ft_write(tmp->line, STDOUT_FILENO);
+        {
+            ft_write(tmp->variable, STDOUT_FILENO);
+            ft_write(tmp->value, STDOUT_FILENO);
+        }
         i++;
     }
 }
-void exec_built_ins(t_cmd *cmd)
+void exec_piped_built_ins(t_cmd *cmd)
 {
     int i;
     char *str;
@@ -172,17 +180,12 @@ void exec_built_ins(t_cmd *cmd)
         }
     if (match_word(cmd->cmd, "env"))
         print_env_list(cmd);
-    if (match_word(cmd->cmd, "export"))
+    if (match_word(cmd->cmd, "export") && cmd->args[1] == NULL)
     {
-        if (cmd->args[1] != NULL)
-            exit(0);
-        while (cmd->args[i])
-        {
-            parse_indetifier(cmd, cmd->args[i]);
-            i++;
-        }
+        // print the exported vars,, (list to be made later)
+        
     }
-    if (match_word(cmd->cmd, "pwd"))
+    else if (match_word(cmd->cmd, "pwd"))
         ft_pwd(cmd);
     //  if (match_word(cmd->cmd, "cd"))
     //      change_dir(cmd, cmd->args[1]);
@@ -191,7 +194,8 @@ void exec_built_ins(t_cmd *cmd)
     //char *ls_args[] = {cmd->cmd,cmd->args[1], NULL};
 
     //execve("/bin/ls",ls_args , NULL);
-    exit(1);
+
+    exit(0);
 }
 
 void signal_handler(int signo) {
@@ -230,6 +234,101 @@ void reset_signal_handlers() {
     // signal(SIGTSTP, SIG_DFL);
 }
 extern char **environ;
+
+
+//exit  cd unset export with options // not piped
+void unset_it(t_cmd *cmd, char *var)
+{
+    t_env *env;
+    env = cmd->env;
+    while (env != NULL)
+    {
+        if (match_word(var, env->variable))
+            {
+                if (env->prev == NULL)
+                {
+                    if (env->next != NULL)
+                        cmd->env = env;
+                }
+                else if (env->next == NULL)
+                    env->prev->next = NULL;
+                else
+                {
+                    env->prev->next = env->next;
+                    env->next->prev = env->prev;
+                }
+                free(env);
+                break;
+            }
+        env = env->next;
+    }
+}
+void unset_env(t_cmd *cmd)
+{
+    t_env *env;
+    int i;
+    
+    i = 1;
+    while (cmd->args[i])
+    {
+       env = cmd->env;
+       while (env != NULL)
+       {
+            if (match_word(cmd->args[i], env->variable))
+                {
+                    unset_it(cmd , env->variable);
+                    break;
+                }
+            env = env->next;
+       }
+       if (env == NULL)
+            identifier_error(cmd->args[i]);
+       i++;
+    }
+}
+void exec_built_ins(t_cmd *cmd)
+{
+    int i;
+    i = 0;
+
+    if (match_word(cmd->cmd, "export") && cmd->args[1] != NULL)
+    {
+        // print the exported vars,, (list to be made later)
+        while (cmd->args[i])
+        {
+            parse_indetifier(cmd, cmd->args[i]);
+            i++;
+        }
+    }
+    if (match_word(cmd->cmd, "unset")) 
+    {
+        if (cmd->args[1] != NULL)
+            unset_env(cmd);
+    }  
+
+    if (match_word(cmd->cmd, "exit") && i == 0)
+        exit(0);
+    if (match_word(cmd->cmd, "cd") )
+        {
+            if (!cmd->pipe)
+                change_dir(cmd, cmd->args[1]);
+            cmd = cmd->next ;
+        }
+    // should we skip all these command by increasing i
+    i++;
+}
+void heredoc_check(t_cmd *cmd)
+{
+    t_cmd *doc;
+    while (doc != NULL)
+    {
+        if (doc->heredoc_delimiter != NULL)
+            {
+                doc->heredoc_content = heredoc(doc->heredoc_delimiter, 1);
+            }
+        doc = doc->next;
+    }
+}
 int main(int argc, char **argv, char *envp[])
 {
     int t;
@@ -245,35 +344,18 @@ int main(int argc, char **argv, char *envp[])
    // char *envp[] = {NULL};
     int dd;
     setup_signal_handlers();
-    int n_pipes = 2;
+    int n_pipes = 1;
     int j = 1;
     int i = 0;
     int s = 0;
-    f = cmd;
-    while (f != NULL)
-    {
-        if (f->heredoc_delimiter != NULL)
-            {
-                f->heredoc_content = heredoc(f->heredoc_delimiter, 1);
-            }
-        f = f->next;
-    }
-    i = 0;
-    if (match_word(cmd->cmd, "cd") )
-            {
-                if (!cmd->pipe)
-                    change_dir(cmd, cmd->args[1]);
-                cmd = cmd->next ;
-                i++;
-            }
-   
+    heredoc_check(cmd);
+    exec_built_ins(cmd);
+    
     pid_t pids[n_pipes];  
 
     while (i < n_pipes)
     {   
         //char *s = readline(">>");
-        if (match_word(cmd->cmd, "exit") && i == 0)
-            exit(0);
         pipe(x);
         pids[i] = fork();
         if (pids[i] == 0)
@@ -293,7 +375,7 @@ int main(int argc, char **argv, char *envp[])
             redirections_set(cmd);
             heredoc_pipe(cmd);
             char *ls_args[] = {cmd->cmd,cmd->args[1], NULL};
-            exec_built_ins(cmd); //not completed!
+            exec_piped_built_ins(cmd); //not completed!
 
             if (execve(cmd->full_path, cmd->args, NULL) == -1)
                 write_fd(strerror(errno), 2);
