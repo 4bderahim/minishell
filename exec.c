@@ -43,10 +43,10 @@ t_cmd* make(t_cmd *cmd, char **envp) {
     cmd->args = (char **)malloc(sizeof(char *) * 3);
     cmd->arg_count = 1;
     cmd->args[0] = strdup("export");
-    cmd->args[1] = strdup("messi=g");
-    cmd->args[2] = strdup("me\"=ggg");
-    cmd->args[3] = strdup("mess=aag");
-    cmd->args[4] = NULL;
+    //cmd->args[1] = strdup("dd");
+    cmd->args[1] = NULL;
+    // cmd->args[3] = strdup("me\"=ggg");
+    // cmd->args[4] = strdup("mess=aag");
     cmd->in_file = NULL;
     cmd->out_file = NULL;//"rett";
     cmd->append_file = NULL;
@@ -154,13 +154,17 @@ void print_env_list(t_cmd *cmd)
         if (cmd->pipe)  
             {
                 ft_write(tmp->variable, STDIN_FILENO);
+                write(STDIN_FILENO, "=", 1);
                 ft_write(tmp->value, STDIN_FILENO);
             }
         else
         {
             ft_write(tmp->variable, STDOUT_FILENO);
+            write(STDOUT_FILENO, "=", 1);
             ft_write(tmp->value, STDOUT_FILENO);
         }
+        write(1, "\n", 1);
+        tmp = tmp->next;
         i++;
     }
 }
@@ -181,14 +185,9 @@ void exec_piped_built_ins(t_cmd *cmd)
     if (match_word(cmd->cmd, "env"))
         print_env_list(cmd);
     if (match_word(cmd->cmd, "export") && cmd->args[1] == NULL)
-    {
-        // print the exported vars,, (list to be made later)
-        
-    }
+        print_env_list(cmd);
     else if (match_word(cmd->cmd, "pwd"))
         ft_pwd(cmd);
-    //  if (match_word(cmd->cmd, "cd"))
-    //      change_dir(cmd, cmd->args[1]);
     else
         return ;
     //char *ls_args[] = {cmd->cmd,cmd->args[1], NULL};
@@ -236,7 +235,6 @@ void reset_signal_handlers() {
 extern char **environ;
 
 
-//exit  cd unset export with options // not piped
 void unset_it(t_cmd *cmd, char *var)
 {
     t_env *env;
@@ -286,9 +284,12 @@ void unset_env(t_cmd *cmd)
        i++;
     }
 }
-void exec_built_ins(t_cmd *cmd)
+int exec_built_ins(t_cmd *cmd)
 {
     int i;
+    int exec;
+
+    exec = 0;
     i = 0;
 
     if (match_word(cmd->cmd, "export") && cmd->args[1] != NULL)
@@ -299,27 +300,36 @@ void exec_built_ins(t_cmd *cmd)
             parse_indetifier(cmd, cmd->args[i]);
             i++;
         }
+        exec++;
     }
     if (match_word(cmd->cmd, "unset")) 
     {
         if (cmd->args[1] != NULL)
             unset_env(cmd);
+        exec++;
     }  
 
     if (match_word(cmd->cmd, "exit") && i == 0)
-        exit(0);
+        {
+            exit(0);
+            exec++;
+        }
     if (match_word(cmd->cmd, "cd") )
         {
             if (!cmd->pipe)
                 change_dir(cmd, cmd->args[1]);
             cmd = cmd->next ;
+            exec++;
         }
     // should we skip all these command by increasing i
-    i++;
+    if (exec)
+        return (1);
+    return (0);
 }
 void heredoc_check(t_cmd *cmd)
 {
     t_cmd *doc;
+    doc = cmd;
     while (doc != NULL)
     {
         if (doc->heredoc_delimiter != NULL)
@@ -343,18 +353,23 @@ int main(int argc, char **argv, char *envp[])
     int pr_fd;
    // char *envp[] = {NULL};
     int dd;
-    setup_signal_handlers();
     int n_pipes = 1;
     int j = 1;
     int i = 0;
     int s = 0;
+    setup_signal_handlers();
     heredoc_check(cmd);
-    exec_built_ins(cmd);
-    
+   
+    if (exec_built_ins(cmd))
+        {
+            i++;
+            //cmd = cmd->next;
+        }
+    //i++;
     pid_t pids[n_pipes];  
 
     while (i < n_pipes)
-    {   
+    {
         //char *s = readline(">>");
         pipe(x);
         pids[i] = fork();
@@ -375,7 +390,7 @@ int main(int argc, char **argv, char *envp[])
             redirections_set(cmd);
             heredoc_pipe(cmd);
             char *ls_args[] = {cmd->cmd,cmd->args[1], NULL};
-            exec_piped_built_ins(cmd); //not completed!
+            exec_piped_built_ins(cmd); // not completed!
 
             if (execve(cmd->full_path, cmd->args, NULL) == -1)
                 write_fd(strerror(errno), 2);

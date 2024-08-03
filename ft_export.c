@@ -44,10 +44,7 @@ void add_it_to_env(t_cmd *cmd, char *new)
    env_addback(cmd->env,env_new(new));
    // prints the changed env
      t_env *ff = cmd->env;
-    //
-    // -> env updates didnt make it to the other side (prent process)
-    // ?? way to updated among all processes!!
-    //
+   
 
 
     // while (ff != NULL)
@@ -79,7 +76,7 @@ void parse_indetifier(t_cmd *cmd, char *str)
     }
     else if(ret == -1)
     {
-        //here we should know first if we have to add it to the export list or the env list or do nothing!
+        //add export list
     }
 
     add_it_to_env(cmd, str);
