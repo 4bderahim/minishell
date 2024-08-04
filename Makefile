@@ -1,5 +1,5 @@
 CC = cc 
-CFLAGS = #-Wall -Wextra -Werror 
+CFLAGS = -fsanitize=address -g #-Wall -Wextra -Werror 
 CFILES = ft_heredoc.c utils.c ft_export.c exec.c
 LIBS = 
 SFLAG = -lreadline

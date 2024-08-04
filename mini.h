@@ -40,8 +40,8 @@ typedef struct s_all
 {
    t_cmd    *cmd; // our parsing struct
    t_env      *env; // environment variables list
-   //t_exp     *exp; // exported variables list
-   //t_dec     *dec; // declared variables list
+   t_exp     *exp; // exported variables list
+   t_dec     *dec; // declared variables list
   // ... any other structs
 
 } t_all;
