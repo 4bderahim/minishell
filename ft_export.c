@@ -39,11 +39,11 @@ int check_before_env(char *s)
         }
     return (-1);// if we should add an (export var) to the env or not;
 }
-void add_it_to_env(t_cmd *cmd, char *new)
+void add_it_to_env(t_all *all, char *new)
 {
-   env_addback(cmd->env,env_new(new));
+   env_addback(all->env,env_new(new));
    // prints the changed env
-     t_env *ff = cmd->env;
+    // t_env *ff = all->env;
    
 
 
@@ -60,7 +60,7 @@ void identifier_error(char *indentifer)
     write(2, indentifer, ft_strlen(indentifer));
     write(2, ": not a valid identifier\n", ft_strlen(": not a valid identifier\n"));
 }
-void parse_indetifier(t_cmd *cmd, char *str)
+void parse_indetifier(t_all *all, char *str)
 {
     int i;
     int ret;
@@ -76,8 +76,9 @@ void parse_indetifier(t_cmd *cmd, char *str)
     }
     else if(ret == -1)
     {
-        //add export list
+       exp_addback(all->exp, exp_new(str));//t_exp    *head, t_exp    *new)
+       return ;
     }
 
-    add_it_to_env(cmd, str);
+    add_it_to_env(all, str);
 }

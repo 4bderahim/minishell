@@ -37,7 +37,7 @@ void ft_echo(char **str, int fd)
         ft_write("\n", fd);
 
 }
-void ft_pwd(t_cmd *cmd)
+void ft_pwd(t_all *all)
 {
     char buff[1024];
     char *ret;
@@ -49,7 +49,7 @@ void ft_pwd(t_cmd *cmd)
         write(2,"error\n", 6);
         exit(1);
     }
-    if (cmd->pipe == 1)
+    if (all->cmd->pipe == 1)
         {
             ft_write(ret,STDOUT_FILENO );
             ft_write("\n", STDOUT_FILENO);
@@ -58,12 +58,12 @@ void ft_pwd(t_cmd *cmd)
         ft_write(ret, STDIN_FILENO);
 
 }
-void add_to_env(t_cmd *cmd, char *new_dir)
+void add_to_env(t_all *all, char *new_dir)
 {
     t_env *tmp;
     t_cmd *tmp2;
     t_cmd *tmp_to_del;
-    tmp = cmd->env;
+    tmp = all->env;
     //more checks here for SEGV
      while (tmp != NULL)
      {
@@ -87,18 +87,18 @@ void add_to_env(t_cmd *cmd, char *new_dir)
         tmp = tmp->next;
      }
 }
-void change_dir(t_cmd *cmd, char *new_dir)
+void change_dir(t_all *all, char *new_dir)
 {
-    if (cmd->pipe || chdir(new_dir) == -1) 
+    if (all->cmd->pipe || chdir(new_dir) == -1) 
         {
             ft_write( "bash: cd: ", 2);
             ft_write(new_dir, 2);
             ft_write(": No such file or directory\n", 2);
             exit(1);
         }
-     t_env *ff = cmd->env;
+    // t_env *ff = all->env;
     
-    add_to_env(cmd, new_dir);
+    add_to_env(all, new_dir);
     // while (ff != NULL)
     // {
     //     write(2, ff->line, ft_strlen(ff->line));

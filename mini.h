@@ -36,20 +36,34 @@ t_all *all;
 t_env *env;
 struct s_command_line *next;
 } t_cmd;
+
+typedef struct s_exp{
+  char *variable;
+  char *value;
+  struct s_exp *next;
+} t_exp;
+
+typedef struct s_dec{
+  char *variable;
+  char *value;
+  struct s_dec *next;
+} t_dec;
+
 typedef struct s_all
 {
    t_cmd    *cmd; // our parsing struct
-   t_env      *env; // environment variables list
-   t_exp     *exp; // exported variables list
+   t_env    *env; // environment variables list
+   t_exp    *exp; // exported variables list
    t_dec     *dec; // declared variables list
   // ... any other structs
 
 } t_all;
+void    set_export_list(t_all *all, char **env);
 void    identifier_error(char *indentifer);
 void    ft_write(char *str, int fd);
-void    change_dir(t_cmd *cmd, char *new_dir);
-void    ft_pwd(t_cmd *cmd);
-void    parse_indetifier(t_cmd *cmd, char *str);
+void    change_dir(t_all *all, char *new_dir);
+void    ft_pwd(t_all *all);
+void    parse_indetifier(t_all *all, char *str);
 void    env_addback(t_env *head, t_env *new);
 char    *ft_strjoin(char *s1, char *s2);
 t_env   *env_new(char *new_line);
