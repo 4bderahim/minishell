@@ -58,7 +58,7 @@ typedef struct s_all
   // ... any other structs
   
 } t_all;
-void print_exp_list(t_all *all);// for test
+void print_exp_list(t_all *all, int pipes[2]);// for test
 void print_env_list(t_all *all);// for test
 t_exp   *new_exp_(t_env *env);
 int     spliter_index(char *str);

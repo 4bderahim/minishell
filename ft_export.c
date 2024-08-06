@@ -73,7 +73,7 @@ void parse_indetifier(t_all *all, char *str)
         t_exp *last;
         last = exp_new(str);
         exp_addback(all->exp, last);//t_exp    *head, t_exp    *new)
-        print_exp_list(all);
+        //print_exp_list(all);
         return ;
     }
     add_it_to_env(all, str);

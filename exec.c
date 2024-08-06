@@ -44,7 +44,7 @@ t_cmd* make(t_all *all, char **envp) {
     cmd->arg_count = 1;
     //cmd->args[0] = strdup("echo");
     cmd->args[0] = "env";//strdup("aaaa");
-   // cmd->args[1] = strdup("____r__o=1");
+   // cmd->args[1] = strdup("helol\nnoen");
     //cmd->args[1] = strdup("dd");
     cmd->args[1] = NULL;//strdup("__a=helloworld");
 
@@ -59,12 +59,12 @@ t_cmd* make(t_all *all, char **envp) {
     all->env = f;
 
     // Command 1: echo hello > file
-    cmd2->cmd = strdup("ls");
-    cmd2->full_path = strdup("/bin/ls"); 
+    cmd2->cmd = strdup("grep");
+    cmd2->full_path = strdup("/usr/bin/grep"); 
     cmd2->args = (char **)malloc(sizeof(char *) * 3);
     cmd2->arg_count = 2;
-    cmd2->args[0] = strdup("ls");
-    cmd2->args[1] = strdup("-la");// strdup("2");
+    cmd2->args[0] = strdup("grep");
+    cmd2->args[1] = strdup("Zone");// strdup("2");
     cmd2->args[2] = NULL;// strdup("2");
 
     //cmd2->args[1] = NULL;//strdup("\\b\\w{3,}\\b");
@@ -120,6 +120,7 @@ void redirections_set(t_all *all)
         close(fd);
     }
 }
+
 void heredoc_pipe(t_all *all)
 {
     int fd;
@@ -146,43 +147,49 @@ void heredoc_pipe(t_all *all)
     //int status;
     //waitpid(getpid(), &status, 0);
 }
-void print_exp_list(t_all *all)
+void print_exp_list(t_all *all, int pipe[2])
 {
     t_exp *tmp;
     tmp = all->exp;
     int i;
     i = 0;
-    
+    char *str;
     while (tmp != NULL)
     {
         
-        if (all->cmd->pipe)  
-            {
-                ft_write("declare -x ", STDIN_FILENO);
-                ft_write(tmp->variable, STDIN_FILENO);
-                ft_write("=", STDIN_FILENO);
-                ft_write("\"", STDIN_FILENO);
-                ft_write(tmp->value, STDIN_FILENO);
-                ft_write("\"", STDIN_FILENO);
-               // write(STDIN_FILENO, "\n", 1);
+        // if (all->cmd->pipe)  
+        //     {
+                 // write( STDOUT_FILENO ,"declare -x PWD=/Users/ael-krid/cursus/minishell",48);
+                //  ft_write("declare -x SECUITYSESSIONID=186a8", STDIN_FILENO );
+               //  write(STDIN_FILENO, "\n", 1);
+                 // ft_write("declarePsWD -x ", STDOUT_FILENO);
+                 // ft_write("declarePWD -x ", pipe[0]);
+                    //break;
+                 ft_write(tmp->variable, STDOUT_FILENO);
 
-            }
-        else
-        { 
-            ft_write("declare -x ", STDOUT_FILENO);
-            //if (!tmp->variable)
-            ft_write(tmp->variable, STDOUT_FILENO);
-            if (tmp->value != NULL)
-                {
-                ft_write("=", STDOUT_FILENO);
-                ft_write("\"", STDOUT_FILENO);
-                }
-            ft_write(tmp->value, STDOUT_FILENO);
-            if (tmp->value != NULL)
-                ft_write("\"", STDOUT_FILENO);
-            ft_write("\n", STDOUT_FILENO);
-        }
-        ft_write("\n", STDIN_FILENO);
+                 ft_write("=", STDOUT_FILENO);
+                 ft_write("\"", STDOUT_FILENO);
+                 ft_write(tmp->value, STDOUT_FILENO);
+                 ft_write("\"", STDOUT_FILENO);
+                 write(STDOUT_FILENO, "\n",STDOUT_FILENO);
+
+            // }
+        // else
+        // { 
+        //     ft_write("declare -x ", STDOUT_FILENO);
+        //     //if (!tmp->variable)
+        //     ft_write(tmp->variable, STDOUT_FILENO);
+        //     if (tmp->value != NULL)
+        //         {
+        //         ft_write("=", STDOUT_FILENO);
+        //         ft_write("\"", STDOUT_FILENO);
+        //         }
+        //     ft_write(tmp->value, STDOUT_FILENO);
+        //     if (tmp->value != NULL)
+        //     ft_write("\"", STDOUT_FILENO);
+        //     ft_write("\n", STDOUT_FILENO);
+        // }
+       // ft_write("PWD", STDOUT_FILENO);
         tmp = tmp->next;
         i++;
     }
@@ -196,26 +203,17 @@ void print_env_list(t_all *all)
     
     while (tmp != NULL) 
     {
-        if (all->cmd->pipe)  
-            {
-                ft_write(tmp->variable, STDIN_FILENO);
-                write(STDIN_FILENO, "=", 1);
-                ft_write(tmp->value, STDIN_FILENO);
-                ft_write("\n", STDIN_FILENO);
-            }
-        else
-        {   
-            ft_write(tmp->variable, STDOUT_FILENO);
-            write(STDOUT_FILENO, "=", 1);
-            ft_write(tmp->value, STDOUT_FILENO);
-            ft_write("\n", STDOUT_FILENO);
-        }
+          
+        ft_write(tmp->variable, STDOUT_FILENO);
+        write(STDOUT_FILENO, "=", 1);
+        ft_write(tmp->value, STDOUT_FILENO);
+        ft_write("\n", STDOUT_FILENO);
         tmp = tmp->next;
         i++;
     }
     
 }
-void exec_piped_built_ins(t_all *all)
+void exec_piped_built_ins(t_all *all, int pipes[2])
 {
     int i;
     char *str;
@@ -226,14 +224,13 @@ void exec_piped_built_ins(t_all *all)
             // need to loop and echo all args
             if (all->cmd->pipe == 1)
                 ft_echo(all->cmd->args+1, STDOUT_FILENO);// need to loop and echo all args
-            else
-                ft_echo(all->cmd->args+1, STDOUT_FILENO);
+            
             exit(0);
         }
     if (match_word(all->cmd->cmd, "env"))
         print_env_list(all);
     if (match_word(all->cmd->cmd, "export") && all->cmd->args[1] == NULL)
-        print_exp_list(all);
+        print_exp_list(all, pipes);
     else if (match_word(all->cmd->cmd, "pwd"))
         ft_pwd(all);
     else
@@ -242,7 +239,7 @@ void exec_piped_built_ins(t_all *all)
 
     //execve("/bin/ls",ls_args , NULL);
 
-    exit(0);
+    //exit(0);
 }
 
 void signal_handler(int signo) {
@@ -453,7 +450,8 @@ int main(int argc, char **argv, char *envp[])
             redirections_set(all);
             heredoc_pipe(all);
             char *ls_args[] = {all->cmd->cmd,all->cmd->args[1], NULL};
-            exec_piped_built_ins(all); // not completed!
+            exec_piped_built_ins(all, x); // not completed!
+            
             if (execve(all->cmd->full_path, all->cmd->args, NULL) == -1)
                 write_fd(strerror(errno), 2);
             //exit(1);
