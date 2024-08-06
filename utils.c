@@ -2,6 +2,8 @@
 
 void ft_write(char *str, int fd)
 {
+    if (str == NULL)
+        return ;
     if (write(fd, str, ft_strlen(str)) == -1)
         {
             //error
@@ -111,6 +113,7 @@ t_env *env_new(char *new_line)
     t_env *new;
     int i;
     i = 0;
+
     while(new_line[i])
     {
         if (new_line[i] == '=')
@@ -121,13 +124,18 @@ t_env *env_new(char *new_line)
             }
         i++;
     }
+    if (new_line[i-1] == '\0')
+        printf("~NULL{%c\n\n\n", new_line[i-2]);
+        //printf("|s@%s~~|\n\n", new_line+i);
+    //else
     new = (t_env *) malloc(sizeof(t_env));
     if (!new)
         exit(1);
-    
     new->variable = strdup(new_line);
-    new->value = strdup(new_line+i);
-
+    if (*(new_line+i))
+        new->value = strdup(new_line+i);
+    else
+        new->value = NULL;//strdup(new_line+i);
     new->next = NULL;
     new->prev = NULL;
     return (new);
@@ -190,18 +198,16 @@ int get_sign_index(char *line)
     }
     return (index);
 }
-t_env *create_env_list(char **env)
+t_env *create_env_list(char **envp)
 {
     int i;
     t_env *head;
     t_env *last;
-
-    head = env_new(env[0]);
+    head = env_new(envp[0]);
     i = 1;
-    while (env[i])
+    while (envp[i] != NULL)
     {
-
-        env_addback(head,env_new(env[i])); 
+        env_addback(head,env_new(envp[i])); 
         last = env_getlast(head);
         i++;
     }

@@ -26,7 +26,8 @@ t_cmd* make(t_all *all, char **envp) {
     t_cmd *cmd1 = list_new(); // For "grep < file.c"
     t_cmd *cmd2 = list_new(); // For "grep < file.c"
     t_cmd *cmd3 = list_new(); // For "ls"
-    t_env *f = create_env_list(envp);
+    t_env *f;
+    // = create_env_list(envp);
     // t_env *qq = f;
     
     // while (qq != NULL)
@@ -43,7 +44,7 @@ t_cmd* make(t_all *all, char **envp) {
     cmd->arg_count = 1;
     //cmd->args[0] = strdup("echo");
     cmd->args[0] = "export";//strdup("aaaa");
-    cmd->args[1] = NULL;
+    cmd->args[1] = strdup("____r__o");
     //cmd->args[1] = strdup("dd");
     cmd->args[2] = NULL;//strdup("__a=helloworld");
 
@@ -58,13 +59,13 @@ t_cmd* make(t_all *all, char **envp) {
     all->env = f;
 
     // Command 1: echo hello > file
-    cmd2->cmd = strdup("ls");
-    cmd2->full_path = strdup("/bin/ls"); 
+    cmd2->cmd = strdup("grep");
+    cmd2->full_path = strdup("/usr/bin/grep"); 
     cmd2->args = (char **)malloc(sizeof(char *) * 3);
     cmd2->arg_count = 2;
-    cmd2->args[0] = strdup("ls");
-    cmd2->args[1] = strdup("-a");// strdup("2");
-    cmd2->args[2] = NULL;//strdup("\\b\\w{3,}\\b");
+    cmd2->args[0] = strdup("grep");
+    cmd2->args[1] = strdup("PWD");// strdup("2");
+    //cmd2->args[1] = NULL;//strdup("\\b\\w{3,}\\b");
     cmd2->env = f;
     cmd2->in_file = NULL;
     cmd2->out_file = NULL;//strdup("doneee"); //strdup("file");
@@ -146,12 +147,13 @@ void heredoc_pipe(t_all *all)
 void print_exp_list(t_all *all)
 {
     t_exp *tmp;
-    tmp = all->env;
+    tmp = all->exp;
     int i;
     i = 0;
     
     while (tmp != NULL)
     {
+        
         if (all->cmd->pipe)  
             {
                 ft_write("declare -x ", STDIN_FILENO);
@@ -164,13 +166,21 @@ void print_exp_list(t_all *all)
 
             }
         else
-        {  
+        { 
+                
             ft_write("declare -x ", STDOUT_FILENO);
+            //if (!tmp->variable)
             ft_write(tmp->variable, STDOUT_FILENO);
-            ft_write("=", STDOUT_FILENO);
-            ft_write("\"", STDOUT_FILENO);
+            if (tmp->value == NULL)
+                printf("\t\t\t#########\n");
+            if (tmp->value != NULL)
+                {
+                ft_write("=", STDIN_FILENO);
+                ft_write("\"", STDOUT_FILENO);
+                }
             ft_write(tmp->value, STDOUT_FILENO);
-            ft_write("\"", STDOUT_FILENO);
+            if (tmp->value != NULL)
+                ft_write("\"", STDOUT_FILENO);
             ft_write("\n", STDOUT_FILENO);
         }
         tmp = tmp->next;
@@ -326,20 +336,17 @@ int exec_built_ins(t_all *all)
     int exec;
 
     exec = 0;
-    i = 0;
+    i = 1;
 
     if (match_word(all->cmd->cmd, "export") && all->cmd->args[1] != NULL)
     {
-       
         // print the exported vars,, (list to be made later)
         while (all->cmd->args[i])
         {
             parse_indetifier(all, all->cmd->args[i]);
             i++;
         }
-
         exec++;
-        
     }
     if (match_word(all->cmd->cmd, "unset")) 
     {
@@ -371,9 +378,7 @@ void heredoc_check(t_all *all)
     while (doc != NULL)
     {
         if (doc->heredoc_delimiter != NULL)
-            {
                 doc->heredoc_content = heredoc(doc->heredoc_delimiter, 1);
-            }
         doc = doc->next;
     }
 }
@@ -381,11 +386,8 @@ void heredoc_check(t_all *all)
 void set_lists(t_all *all, char **env)
 {
     all->env = create_env_list(env);
-    set_export_list(all, env);
-
+    all->exp = set_export_list(all, env);
 }
-
-
 
 int main(int argc, char **argv, char *envp[])
 {
@@ -393,11 +395,17 @@ int main(int argc, char **argv, char *envp[])
     char *line;
     t_cmd *f;
     t_all *all;
+    int i = 0;
+
     all = (t_all *) malloc(sizeof(t_all));
     if (!all)
         exit(1);
+    all->exp = NULL;
+    
 //    all->cmd = 
+    
     make(all, envp);
+    set_lists(all, envp);
    // t_env *ff = create_env_list(envp);
     
 
@@ -408,7 +416,6 @@ int main(int argc, char **argv, char *envp[])
     int dd;
     int n_pipes = 1;
     int j = 1;
-    int i = 0;
     int s = 0;
     setup_signal_handlers();
     heredoc_check(all);
@@ -417,7 +424,6 @@ int main(int argc, char **argv, char *envp[])
         {
             n_pipes--;
             all->cmd = all->cmd->next;
-             
         }
     //i++;
     pid_t pids[n_pipes];  
@@ -445,6 +451,7 @@ int main(int argc, char **argv, char *envp[])
             heredoc_pipe(all);
             char *ls_args[] = {all->cmd->cmd,all->cmd->args[1], NULL};
             exec_piped_built_ins(all); // not completed!
+            
             if (execve(all->cmd->full_path, all->cmd->args, NULL) == -1)
                 write_fd(strerror(errno), 2);
             //exit(1);

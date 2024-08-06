@@ -54,11 +54,15 @@ typedef struct s_all
    t_cmd    *cmd; // our parsing struct
    t_env    *env; // environment variables list
    t_exp    *exp; // exported variables list
-   t_dec     *dec; // declared variables list
+  // t_dec     *dec; // declared variables list
   // ... any other structs
-
+  
 } t_all;
-void    set_export_list(t_all *all, char **env);
+void print_exp_list(t_all *all);// for test
+t_exp *new_exp_(t_env *env);
+t_exp   *exp_new(char *new_line);// not used 
+void    exp_addback(t_exp    *head, t_exp    *new);
+t_exp   *set_export_list(t_all *all, char **env);
 void    identifier_error(char *indentifer);
 void    ft_write(char *str, int fd);
 void    change_dir(t_all *all, char *new_dir);
