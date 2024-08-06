@@ -43,7 +43,6 @@ void ft_pwd(t_all *all)
 {
     char buff[1024];
     char *ret;
-    write(2, "#done#", 6);
     ret = getcwd(buff, 1024);
     if (ret == NULL)
     {

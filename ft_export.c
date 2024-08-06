@@ -47,6 +47,8 @@ void add_it_to_env(t_all *all, char *new)
    exp_addback(all->exp, new_exp_(env_getlast(all->env)));
    // prints the changed env
     print_exp_list(all);
+    write(2, "\n\n\n", 3);
+    print_env_list(all);
 }
 void identifier_error(char *indentifer)
 {

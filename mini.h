@@ -59,6 +59,7 @@ typedef struct s_all
   
 } t_all;
 void print_exp_list(t_all *all);// for test
+void print_env_list(t_all *all);// for test
 t_exp *new_exp_(t_env *env);
 t_exp   *exp_new(char *new_line);// not used 
 void    exp_addback(t_exp    *head, t_exp    *new);
