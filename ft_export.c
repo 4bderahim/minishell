@@ -42,13 +42,13 @@ int check_before_env(char *s)
 void add_it_to_env(t_all *all, char *new)
 {
     
-   printf("\t\t|%s|\n\n", new);
+   //printf("\t\t|%s|\n\n", new);
    env_addback(all->env,env_new(new));
    exp_addback(all->exp, new_exp_(env_getlast(all->env)));
    // prints the changed env
-    print_exp_list(all);
-    write(2, "\n\n\n", 3);
-    print_env_list(all);
+    //print_exp_list(all);
+   // write(2, "\n\n(@@)\n", 7);
+   // print_env_list(all);
 }
 void identifier_error(char *indentifer)
 {
@@ -72,12 +72,9 @@ void parse_indetifier(t_all *all, char *str)
     {
         t_exp *last;
         last = exp_new(str);
-        if (last->value == NULL)
-            printf("\t\t\t\t\n\n\n hello world %s\n\n\n", last->value);
-       exp_addback(all->exp, last);//t_exp    *head, t_exp    *new)
-
-       print_exp_list(all);
-       return ;
+        exp_addback(all->exp, last);//t_exp    *head, t_exp    *new)
+        print_exp_list(all);
+        return ;
     }
     add_it_to_env(all, str);
 }

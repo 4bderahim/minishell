@@ -15,27 +15,33 @@ t_exp *exp_getlast(t_exp *exp)
     }
     return (tmp);
 }
-
-t_exp *exp_new(char *new_line)
+int spliter_index(char *str)
 {
-    t_exp *new;
     int i;
     i = 0;
-    while(new_line[i])
+    while(str[i])
     {
-        if (new_line[i] == '=')
+        if (str[i] == '=')
             {
-                new_line[i] = '\0';
+                str[i] = '\0';
                 i++;
                 break;
             }
         i++;
     }
+    return (i);
+}
+t_exp *exp_new(char *new_line)
+{
+    t_exp *new;
+    int index;
+    
+    index = spliter_index(new_line);
     new = (t_exp *) malloc(sizeof(t_exp));
     if (!new)
         exit(1);
     new->variable = strdup(new_line);
-    if (new_line[i] == '\0')
+    if (new_line[index] == '\0')
         new->value = NULL;
     else
         new->value = strdup(new_line+1);

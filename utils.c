@@ -110,29 +110,17 @@ void change_dir(t_all *all, char *new_dir)
 t_env *env_new(char *new_line)
 {
     t_env *new;
-    int i;
-    i = 0;
-
-    while(new_line[i])
-    {
-        if (new_line[i] == '=')
-            {
-                new_line[i] = '\0';
-                i++;
-                break;
-            }
-        i++;
-    }
-    if (new_line[i-1] == '\0')
-        printf("~NULL{%c\n\n\n", new_line[i-2]);
+    int index;
+    
+    index = spliter_index(new_line);
         //printf("|s@%s~~|\n\n", new_line+i);
     //else
     new = (t_env *) malloc(sizeof(t_env));
     if (!new)
         exit(1);
     new->variable = strdup(new_line);
-    if (*(new_line+i))
-        new->value = strdup(new_line+i);
+    if (*(new_line+index))
+        new->value = strdup(new_line+index);
     else
         new->value = NULL;//strdup(new_line+i);
     new->next = NULL;
