@@ -301,7 +301,19 @@ void set_lists(t_all *all, char **env)
     all->env = create_env_list(env);
     all->exp = set_export_list(all, env);
 }
-
+void redirect_in_out_to_pipe(int n_pipes, int index, int pipe[],int *pr_fd)
+{
+    if (index != 0)
+    {
+        dup2(*pr_fd, STDIN_FILENO);  
+        close(*pr_fd);
+    }
+    if (index < n_pipes -1)
+    {
+        dup2(pipe[1],STDOUT_FILENO);
+        close(pipe[1]);
+    }
+}
 int main(int argc, char **argv, char *envp[])
 {
     int t;
@@ -351,19 +363,11 @@ int main(int argc, char **argv, char *envp[])
         {
             reset_signal_handlers();
             //char *envp[] = {NULL};
-            if (i != 0)
-                {
-                    dup2(pr_fd, STDIN_FILENO);  
-                    close(pr_fd);
-                }
-            if (i < n_pipes -1)
-                {
-                    dup2(x[1],STDOUT_FILENO);
-                    close(x[1]);
-                }
+            redirect_in_out_to_pipe(n_pipes, i, x, &pr_fd);
+            
             redirections_set(all);
             heredoc_pipe(all);
-            char *ls_args[] = {all->cmd->cmd,all->cmd->args[1], NULL};
+            ///char *ls_args[] = {all->cmd->cmd,all->cmd->args[1], NULL};
             exec_piped_built_ins(all, x); // not completed!
             
             if (execve(all->cmd->full_path, all->cmd->args, NULL) == -1)
