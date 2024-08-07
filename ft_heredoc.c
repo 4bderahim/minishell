@@ -71,16 +71,17 @@ char	*ft_strjoin(char *s1, char *s2)
 	free(s1);
 	return (allocated);
 }
-int write_fd(char *str, int fd)
-{
-    while (*str)
-    {
-        if (write(fd,  &(*str), 1) == -1)
-            return (0);
-        str++;
-    }
-    return (1);
-}
+// int write_fd(char *str, int fd)
+// {
+//     while (*str)
+//     {
+//         if (write(fd,  &(*str), 1) == -1)
+//             return (0);
+//         str++;
+//     }
+//     return (1);
+// }
+
 char *heredoc(char *heredoc_str, int fd)
 {
     char *full_str;
@@ -100,6 +101,18 @@ char *heredoc(char *heredoc_str, int fd)
 			break;
     }
 	return (full_str);
+}
+
+void heredoc_check(t_all *all)
+{
+    t_cmd *doc;
+    doc = all->cmd;
+    while (doc != NULL)
+    {
+        if (doc->heredoc_delimiter != NULL)
+                doc->heredoc_content = heredoc(doc->heredoc_delimiter, 1);
+        doc = doc->next;
+    }
 }
 // int  main()
 // {

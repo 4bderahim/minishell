@@ -156,40 +156,12 @@ void print_exp_list(t_all *all, int pipe[2])
     char *str;
     while (tmp != NULL)
     {
-        
-        // if (all->cmd->pipe)  
-        //     {
-                 // write( STDOUT_FILENO ,"declare -x PWD=/Users/ael-krid/cursus/minishell",48);
-                //  ft_write("declare -x SECUITYSESSIONID=186a8", STDIN_FILENO );
-               //  write(STDIN_FILENO, "\n", 1);
-                 // ft_write("declarePsWD -x ", STDOUT_FILENO);
-                 // ft_write("declarePWD -x ", pipe[0]);
-                    //break;
-                 ft_write(tmp->variable, STDOUT_FILENO);
-
-                 ft_write("=", STDOUT_FILENO);
-                 ft_write("\"", STDOUT_FILENO);
-                 ft_write(tmp->value, STDOUT_FILENO);
-                 ft_write("\"", STDOUT_FILENO);
-                 write(STDOUT_FILENO, "\n",STDOUT_FILENO);
-
-            // }
-        // else
-        // { 
-        //     ft_write("declare -x ", STDOUT_FILENO);
-        //     //if (!tmp->variable)
-        //     ft_write(tmp->variable, STDOUT_FILENO);
-        //     if (tmp->value != NULL)
-        //         {
-        //         ft_write("=", STDOUT_FILENO);
-        //         ft_write("\"", STDOUT_FILENO);
-        //         }
-        //     ft_write(tmp->value, STDOUT_FILENO);
-        //     if (tmp->value != NULL)
-        //     ft_write("\"", STDOUT_FILENO);
-        //     ft_write("\n", STDOUT_FILENO);
-        // }
-       // ft_write("PWD", STDOUT_FILENO);
+        ft_write(tmp->variable, STDOUT_FILENO);
+        ft_write("=", STDOUT_FILENO);
+        ft_write("\"", STDOUT_FILENO);
+        ft_write(tmp->value, STDOUT_FILENO);
+        ft_write("\"", STDOUT_FILENO);
+        write(STDOUT_FILENO, "\n",STDOUT_FILENO);
         tmp = tmp->next;
         i++;
     }
@@ -203,7 +175,6 @@ void print_env_list(t_all *all)
     
     while (tmp != NULL) 
     {
-          
         ft_write(tmp->variable, STDOUT_FILENO);
         write(STDOUT_FILENO, "=", 1);
         ft_write(tmp->value, STDOUT_FILENO);
@@ -276,59 +247,12 @@ void reset_signal_handlers() {
     signal(SIGINT, SIG_DFL);
     // signal(SIGQUIT, SIG_DFL);
     // signal(SIGTSTP, SIG_DFL);
-}
-extern char **environ;
+};
 
 
-void unset_it(t_all *all, char *var)
-{
-    t_env *env;
-    env = all->env;
-    while (env != NULL)
-    {
-        if (match_word(var, env->variable))
-            {
-                if (env->prev == NULL)
-                {
-                    if (env->next != NULL)
-                        all->env = env;
-                }
-                else if (env->next == NULL)
-                    env->prev->next = NULL;
-                else
-                {
-                    env->prev->next = env->next;
-                    env->next->prev = env->prev;
-                }
-                free(env);
-                break;
-            }
-        env = env->next;
-    }
-}
-void unset_env(t_all *all)
-{
-    t_env *env;
-    int i;
-    
-    i = 1;
-    while (all->cmd->args[i])
-    {
-       env = all->env;
-       while (env != NULL)
-       {
-            if (match_word(all->cmd->args[i], env->variable))
-                {
-                    unset_it(all , env->variable);
-                    break;
-                }
-            env = env->next;
-       }
-       if (env == NULL)
-            identifier_error(all->cmd->args[i]);
-       i++;
-    }
-}
+
+
+
 int exec_built_ins(t_all *all)
 {
     int i;
@@ -370,17 +294,7 @@ int exec_built_ins(t_all *all)
         return (1);
     return (0);
 }
-void heredoc_check(t_all *all)
-{
-    t_cmd *doc;
-    doc = all->cmd;
-    while (doc != NULL)
-    {
-        if (doc->heredoc_delimiter != NULL)
-                doc->heredoc_content = heredoc(doc->heredoc_delimiter, 1);
-        doc = doc->next;
-    }
-}
+
 
 void set_lists(t_all *all, char **env)
 {
@@ -453,7 +367,7 @@ int main(int argc, char **argv, char *envp[])
             exec_piped_built_ins(all, x); // not completed!
             
             if (execve(all->cmd->full_path, all->cmd->args, NULL) == -1)
-                write_fd(strerror(errno), 2);
+                ft_write(strerror(errno), 2);
             //exit(1);
         }
         if (i !=0 )

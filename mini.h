@@ -40,6 +40,7 @@ struct s_command_line *next;
 typedef struct s_exp{
   char *variable;
   char *value;
+  struct s_exp *prev;
   struct s_exp *next;
 } t_exp;
 
@@ -58,8 +59,9 @@ typedef struct s_all
   // ... any other structs
   
 } t_all;
-void print_exp_list(t_all *all, int pipes[2]);// for test
-void print_env_list(t_all *all);// for test
+// void    print_exp_list(t_all *all, int pipes[2]);// for test
+// void    print_env_list(t_all *all);// for test
+void    heredoc_check(t_all *all);
 t_exp   *new_exp_(t_env *env);
 int     spliter_index(char *str);
 t_exp   *exp_new(char *new_line);// not used 
@@ -70,6 +72,8 @@ void    ft_write(char *str, int fd);
 void    change_dir(t_all *all, char *new_dir);
 void    ft_pwd(t_all *all);
 void    parse_indetifier(t_all *all, char *str);
+void    unset_env(t_all *all);
+void    unset_exp(t_all *all);
 void    env_addback(t_env *head, t_env *new);
 char    *ft_strjoin(char *s1, char *s2);
 t_env   *env_new(char *new_line);
@@ -77,7 +81,6 @@ t_env   *env_getlast(t_env *env);
 t_env   *create_env_list(char **env);
 size_t	ft_strlen(char *s);
 void    ft_echo(char **str, int fd);
-int     write_fd(char *str, int fd);
 char    *heredoc(char *heredoc_str, int fd);
 
 // typedef struct s_all {

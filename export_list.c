@@ -62,6 +62,7 @@ void exp_addback(t_exp    *head, t_exp    *new)
     //     }
     tmp = exp_getlast(head);
     tmp->next = new;
+    new->prev = tmp;
     //new->prev = tmp;
 }
 t_exp *new_exp_(t_env *env)
@@ -73,6 +74,7 @@ t_exp *new_exp_(t_env *env)
     new->value = env->value;
     new->variable = env->variable;
     new->next = NULL;
+    new->prev = NULL;
    // printf("%s=%s\n", new->value, new->variable);
     return (new);
 }

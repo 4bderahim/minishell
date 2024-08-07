@@ -56,6 +56,8 @@ void identifier_error(char *indentifer)
     write(2, indentifer, ft_strlen(indentifer));
     write(2, ": not a valid identifier\n", ft_strlen(": not a valid identifier\n"));
 }
+
+
 void parse_indetifier(t_all *all, char *str)
 {
     int i;
@@ -68,7 +70,8 @@ void parse_indetifier(t_all *all, char *str)
         identifier_error(str);
         return ;
     }
-    else if(ret == -1)
+    unset_env(all);
+    if(ret == -1)
     {
         t_exp *last;
         last = exp_new(str);
