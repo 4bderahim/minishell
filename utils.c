@@ -7,7 +7,7 @@ void ft_write(char *str, int fd)
     if (write(fd, str, ft_strlen(str)) == -1)
         {
             //error
-            write(2, "error\n", 6);
+            write(2, "error\n", 7);
             exit(1);
         }
 }
@@ -111,7 +111,9 @@ t_env *env_new(char *new_line)
 {
     t_env *new;
     int index;
-    
+    // if (new_line == NULL)
+    //     return NULL;
+
     index = spliter_index(new_line);
         //printf("|s@%s~~|\n\n", new_line+i);
     //else
@@ -162,9 +164,17 @@ t_env *env_getlast(t_env *env)
 void env_addback(t_env *head, t_env *new)
 {
     t_env *tmp;
+    if(new == NULL)
+        write(2 ,"\n&&\n\n\n", 6);
+        
+        // write(2 ,new->value, 10);
+        // write(2 ,"\n\n", 2);
+
+
+    // if (new == NULL)
     // if (!head)
     //     {
-    //         if (new == NULL)
+    //         // if (new == NULL)
     //             return ;
     //         head = new;
     //         return ;
@@ -190,11 +200,11 @@ t_env *create_env_list(char **envp)
     int i;
     t_env *head;
     t_env *last;
-    head = env_new(envp[0]);
     i = 1;
+    head = env_new(envp[0]);
     while (envp[i] != NULL)
     {
-        env_addback(head,env_new(envp[i])); 
+        env_addback(head,env_new(envp[i]));
         last = env_getlast(head);
         i++;
     }

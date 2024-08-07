@@ -64,13 +64,14 @@ void parse_indetifier(t_all *all, char *str)
     int ret;
 
     i = 0;
+    
     ret = check_before_env(str) ;
     if (ret == 0)
     {
         identifier_error(str);
         return ;
     }
-    unset_env(all);
+    unset_exp(all);// check if its already there ,, delete it , to update a new one!
     if(ret == -1)
     {
         t_exp *last;

@@ -1,6 +1,6 @@
 CC = cc 
 CFLAGS = -fsanitize=address -g #-Wall -Wextra -Werror 
-CFILES = unset_vars.c export_list.c  ft_heredoc.c utils.c ft_export.c exec.c
+CFILES = execute_builtins.c unset_vars.c export_list.c  ft_heredoc.c utils.c ft_export.c exec.c
 LIBS = 
 SFLAG = -lreadline
 OFILES = $(CFILES:.c=.o)

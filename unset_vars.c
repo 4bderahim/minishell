@@ -100,3 +100,4 @@ void unset_env(t_all *all)
        i++;
     }
 }
+

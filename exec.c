@@ -38,12 +38,12 @@ t_cmd* make(t_all *all, char **envp) {
     // }
     
     
-    cmd->cmd = strdup("env");
-    cmd->full_path = strdup("/bin/echo"); 
+    cmd->cmd = strdup("mini");
+    cmd->full_path = strdup("/Users/ael-krid/cursus/minishell/mini"); 
     cmd->args = (char **)malloc(sizeof(char *) * 3);
     cmd->arg_count = 1;
     //cmd->args[0] = strdup("echo");
-    cmd->args[0] = "env";//strdup("aaaa");
+    cmd->args[0] = "mini";//strdup("aaaa");
    // cmd->args[1] = strdup("helol\nnoen");
     //cmd->args[1] = strdup("dd");
     cmd->args[1] = NULL;//strdup("__a=helloworld");
@@ -89,7 +89,7 @@ t_cmd* make(t_all *all, char **envp) {
     cmd3->heredoc_delimiter = NULL;
     cmd3->heredoc_content = NULL;
     cmd3->pipe = 0; // Pipes to next command
-    cmd3->env = f;
+   // cmd3->env = f;
 
     cmd->next = cmd2;
     cmd2->next = cmd3;
@@ -136,7 +136,7 @@ void heredoc_pipe(t_all *all)
     {
         close(p[0]);
         redirections_set(all);
-        //all->cmd->heredoc_content = heredoc(all->heredoc_delimiter, 1);
+        all->cmd->heredoc_content = heredoc(all->cmd->heredoc_delimiter, 1);
         write(p[1], all->cmd->heredoc_content, ft_strlen(all->cmd->heredoc_content));
         close(p[1]);
         exit(1);
@@ -144,78 +144,9 @@ void heredoc_pipe(t_all *all)
     close(p[1]);
     dup2(p[0], STDIN_FILENO);
     close(p[0]);
-    //int status;
-    //waitpid(getpid(), &status, 0);
-}
-void print_exp_list(t_all *all, int pipe[2])
-{
-    t_exp *tmp;
-    tmp = all->exp;
-    int i;
-    i = 0;
-    char *str;
-    while (tmp != NULL)
-    {
-        ft_write(tmp->variable, STDOUT_FILENO);
-        ft_write("=", STDOUT_FILENO);
-        ft_write("\"", STDOUT_FILENO);
-        ft_write(tmp->value, STDOUT_FILENO);
-        ft_write("\"", STDOUT_FILENO);
-        write(STDOUT_FILENO, "\n",STDOUT_FILENO);
-        tmp = tmp->next;
-        i++;
-    }
-}
-void print_env_list(t_all *all)
-{
-    t_env *tmp;
-    tmp = all->env;
-    int i;
-    i = 0;
-    
-    while (tmp != NULL) 
-    {
-        ft_write(tmp->variable, STDOUT_FILENO);
-        write(STDOUT_FILENO, "=", 1);
-        ft_write(tmp->value, STDOUT_FILENO);
-        ft_write("\n", STDOUT_FILENO);
-        tmp = tmp->next;
-        i++;
-    }
-    
-}
-void exec_piped_built_ins(t_all *all, int pipes[2])
-{
-    int i;
-    char *str;
-
-    i = 0;
-    if (match_word(all->cmd->cmd, "echo"))
-        {
-            // need to loop and echo all args
-            if (all->cmd->pipe == 1)
-                ft_echo(all->cmd->args+1, STDOUT_FILENO);// need to loop and echo all args
-            
-            exit(0);
-        }
-    if (match_word(all->cmd->cmd, "env"))
-        print_env_list(all);
-    if (match_word(all->cmd->cmd, "export") && all->cmd->args[1] == NULL)
-        print_exp_list(all, pipes);
-    else if (match_word(all->cmd->cmd, "pwd"))
-        ft_pwd(all);
-    else
-        return ;
-    //char *ls_args[] = {all->cmd->cmd,all->cmd->args[1], NULL};
-
-    //execve("/bin/ls",ls_args , NULL);
-
-    //exit(0);
 }
 
 void signal_handler(int signo) {
-    
-    
     if (signo == SIGINT)
         {
             printf("\n");
@@ -250,9 +181,6 @@ void reset_signal_handlers() {
 };
 
 
-
-
-
 int exec_built_ins(t_all *all)
 {
     int i;
@@ -260,10 +188,9 @@ int exec_built_ins(t_all *all)
 
     exec = 0;
     i = 1;
-
+    
     if (match_word(all->cmd->cmd, "export") && all->cmd->args[1] != NULL)
     {
-        // print the exported vars,, (list to be made later)
         while (all->cmd->args[i])
         {
             parse_indetifier(all, all->cmd->args[i]);
@@ -298,6 +225,8 @@ int exec_built_ins(t_all *all)
 
 void set_lists(t_all *all, char **env)
 {
+    // if (all->env != NULL)
+    //     return ;
     all->env = create_env_list(env);
     all->exp = set_export_list(all, env);
 }
@@ -325,12 +254,15 @@ int main(int argc, char **argv, char *envp[])
     all = (t_all *) malloc(sizeof(t_all));
     if (!all)
         exit(1);
-    all->exp = NULL;
+    // all->exp = NULL;
+    // all->env = NULL;
+
     
 //    all->cmd = 
-    
     make(all, envp);
     set_lists(all, envp);
+    
+
    // t_env *ff = create_env_list(envp);
     
 
@@ -350,33 +282,35 @@ int main(int argc, char **argv, char *envp[])
             n_pipes--;
             all->cmd = all->cmd->next;
         }
-            
-    //i++;
-    pid_t pids[n_pipes];  
-
+    pid_t pids[n_pipes];
     while (i < n_pipes)
     {
-        //char *s = readline(">>");
         pipe(x);
         pids[i] = fork();
         if (pids[i] == 0)
         {
             reset_signal_handlers();
-            //char *envp[] = {NULL};
+            // if (i != 0)
+            // {
+            //     dup2(pr_fd, STDIN_FILENO);  
+            //     close(pr_fd);
+            // }
+            // if (i < n_pipes -1)
+            // {
+            //     dup2(x[1],STDOUT_FILENO);
+            //     close(x[1]);
+            // }
             redirect_in_out_to_pipe(n_pipes, i, x, &pr_fd);
-            
             redirections_set(all);
             heredoc_pipe(all);
-            ///char *ls_args[] = {all->cmd->cmd,all->cmd->args[1], NULL};
             exec_piped_built_ins(all, x); // not completed!
-            
-            if (execve(all->cmd->full_path, all->cmd->args, NULL) == -1)
+            if (execve(all->cmd->full_path, all->cmd->args, envp) == -1)
                 ft_write(strerror(errno), 2);
             //exit(1);
         }
         if (i !=0 )
             close(pr_fd);
-        pr_fd = dup(x[0]);// pr_fd
+        pr_fd = dup(x[0]);
         close(x[1]);
         close(x[0]);
        i++;
