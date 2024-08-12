@@ -1,15 +1,16 @@
-#include "mini.h"
-size_t	ft_strlen(char *s)
-{
-	int	i;
+#include "minishell.h"
 
-	i = 0;
-	while (s[i])
-	{
-		i++;
-	}
-	return (i);
-}
+// size_t	ft_strlen(char *s)
+// {
+// 	int	i;
+
+// 	i = 0;
+// 	while (s[i])
+// 	{
+// 		i++;
+// 	}
+// 	return (i);
+// }
 int match_word(char *neadle, char *str)
 {
     int i;
@@ -49,28 +50,28 @@ static void	join_the_two_strings(char *all, char const *s1, char const *s2)
 	}
 }
 
-char	*ft_strjoin(char *s1, char *s2)
-{
-	char	*allocated;
-	size_t	string_len;
-	size_t	x;
+// char	*ft_strjoin(char *s1, char *s2)
+// {
+// 	char	*allocated;
+// 	size_t	string_len;
+// 	size_t	x;
 
-	x = 0;
-	if (s1 != NULL)
-	{
-		x = ft_strlen(s1);
-	}
-	string_len = x + ft_strlen(s2);
-	allocated = (char *)malloc(string_len + 1);
-	if (!allocated)
-	{
-		return (NULL);
-	}
-	join_the_two_strings(allocated, s1, s2);
-	allocated[string_len] = '\0';
-	free(s1);
-	return (allocated);
-}
+// 	x = 0;
+// 	if (s1 != NULL)
+// 	{
+// 		x = ft_strlen(s1);
+// 	}
+// 	string_len = x + ft_strlen(s2);
+// 	allocated = (char *)malloc(string_len + 1);
+// 	if (!allocated)
+// 	{
+// 		return (NULL);
+// 	}
+// 	join_the_two_strings(allocated, s1, s2);
+// 	allocated[string_len] = '\0';
+// 	free(s1);
+// 	return (allocated);
+// }
 // int write_fd(char *str, int fd)
 // {
 //     while (*str)
@@ -91,7 +92,7 @@ char *heredoc(char *heredoc_str, int fd)
     full_str[0] = 0;
     while (1)
     {
-        input = readline(">");
+        input = readline(">>");
         if (!match_word( input, heredoc_str))
             {
                 full_str = ft_strjoin(full_str, input);
@@ -109,6 +110,8 @@ void heredoc_check(t_all *all)
     doc = all->cmd;
     while (doc != NULL)
     {
+        // if(doc->heredoc_delimiter == NULL)
+        //     exit(1);
         if (doc->heredoc_delimiter != NULL)
                 doc->heredoc_content = heredoc(doc->heredoc_delimiter, 1);
         doc = doc->next;

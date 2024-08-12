@@ -1,4 +1,4 @@
-#include "mini.h"
+#include "minishell.h"
 
 t_exp *exp_getlast(t_exp *exp)
 {
@@ -75,7 +75,7 @@ t_exp *new_exp_(t_env *env)
     new->variable = env->variable;
     new->next = NULL;
     new->prev = NULL;
-   // printf("%s=%s\n", new->value, new->variable);
+    // printf("%s=%s\n", new->value, new->variable);
     return (new);
 }
 t_exp *set_export_list(t_all *all, char **envirement_list)

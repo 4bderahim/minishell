@@ -1,6 +1,6 @@
+// 
 
-
-#include "mini.h"
+#include "minishell.h"
 
 void print_exp_list(t_all *all, int pipe[2])
 {
@@ -26,18 +26,15 @@ void print_env_list(t_all *all)
     t_env *tmp;
     tmp = all->env;
     int i;
-    i = 0;
     
     while (tmp != NULL) 
     {
         ft_write(tmp->variable, STDOUT_FILENO);
-        write(STDOUT_FILENO, "=", 1);
+        ft_write("=", STDOUT_FILENO);
         ft_write(tmp->value, STDOUT_FILENO);
-        ft_write("\n", STDOUT_FILENO);
+        ft_write("\n", STDOUT_FILENO);   
         tmp = tmp->next;
-        i++;
     }
-    
 }
 
 
@@ -49,16 +46,10 @@ void exec_piped_built_ins(t_all *all, int pipes[2])
 
     i = 0;
     if (match_word(all->cmd->cmd, "echo"))
-        {
-            // need to loop and echo all args
-            if (all->cmd->pipe == 1)
-                ft_echo(all->cmd->args+1, STDOUT_FILENO);// need to loop and echo all args
-            
-            exit(0);
-        }
-    if (match_word(all->cmd->cmd, "env"))
+        ft_echo(all->cmd->args+1, STDOUT_FILENO);// need to loop and echo all args
+    else if (match_word(all->cmd->cmd, "env"))
         print_env_list(all);
-    if (match_word(all->cmd->cmd, "export") && all->cmd->args[1] == NULL)
+    else if (match_word(all->cmd->cmd, "export") && all->cmd->args[1] == NULL)
         print_exp_list(all, pipes);
     else if (match_word(all->cmd->cmd, "pwd"))
         ft_pwd(all);
@@ -69,4 +60,45 @@ void exec_piped_built_ins(t_all *all, int pipes[2])
     //execve("/bin/ls",ls_args , NULL);
 
     exit(0);
+}
+
+
+
+int exec_built_ins(t_all *all)
+{
+    int i;
+    int exec;
+
+    exec = 0;
+    i = 1;
+    
+    if (match_word(all->cmd->cmd, "export") && all->cmd->args[1] != NULL)
+    {
+        while (all->cmd->args[i])
+        {
+            parse_indetifier(all, all->cmd->args[i]);
+            i++;
+        }
+        exec++;
+    }
+    if (match_word(all->cmd->cmd, "unset")) 
+    {
+        if (all->cmd->args[1] != NULL)
+            unset_env(all);
+        exec++;
+    }  
+    if (match_word(all->cmd->cmd, "exit") && i == 0)
+        {
+            exit(0);
+            exec++;
+        }
+    if (match_word(all->cmd->cmd, "cd") )
+        {
+            if (!all->cmd->pipe)
+                change_dir(all, all->cmd->args[1]);
+            exec++;
+        }
+    if (exec)
+        return (1);
+    return (0);
 }

@@ -1,12 +1,12 @@
-#include "mini.h"
+#include "minishell.h"
 
 void ft_write(char *str, int fd)
 {
+
     if (str == NULL)
         return ;
     if (write(fd, str, ft_strlen(str)) == -1)
         {
-            //error
             write(2, "error\n", 7);
             exit(1);
         }
@@ -35,7 +35,7 @@ void ft_echo(char **str, int fd)
         i++;
     }
 
-    if (flag == 1)
+    if (flag != 1)
         ft_write("\n", fd);
 
 }
@@ -50,62 +50,61 @@ void ft_pwd(t_all *all)
         write(2,"error\n", 6);
         exit(1);
     }
-    if (all->cmd->pipe == 1)
-        {
-            ft_write(ret,STDOUT_FILENO );
-            ft_write("\n", STDOUT_FILENO);
-        }
-    else    
-        ft_write(ret, STDIN_FILENO);
+    // if (all->cmd->pipe == 1)
+    //     {
+    //         ft_write(ret,STDOUT_FILENO );
+    //         ft_write("\n", STDOUT_FILENO);
+    //     }
+    // else    
+        ft_write(ret, STDOUT_FILENO);
 
 }
 void add_to_env(t_all *all, char *new_dir)
 {
     t_env *tmp;
-    t_cmd *tmp2;
-    t_cmd *tmp_to_del;
+    t_env *tmp2;
+    t_all *al;
+
     tmp = all->env;
+    if (new_dir == NULL)
+        exit(1);
     //more checks here for SEGV
      while (tmp != NULL)
      {
-        if ( ft_strlen(tmp->variable) > 3 &&
+        if ( ft_strlen(tmp->variable) > 2 &&
          tmp->variable[0] == 'P' && tmp->variable[1] == 'W' && tmp->variable[2] == 'D')
          {
-           // tmp_to_del = tmp;
             if (tmp->next != NULL)
             {
-                tmp->prev->next = tmp->next;
-                tmp->next->prev = tmp->prev->next;
-                free(tmp);
-                env_addback(tmp, env_new(new_dir));
-                return ;
+                tmp->value = ft_strdup(new_dir);
+                return;
             }
-            tmp->prev->next = NULL;
-            free(tmp);
-            env_addback(tmp, env_new(new_dir));
+            al->env->prev->next = NULL;
+            env_addback(al->env, env_new(new_dir));
+             //write(2, tmp->value, ft_strlen(tmp->value));
+
+            // all->env = tmp;
+            ////free(tmp);
+
             return ;
          }
         tmp = tmp->next;
      }
+     
 }
 void change_dir(t_all *all, char *new_dir)
 {
+    char buff[1024];
     if (all->cmd->pipe || chdir(new_dir) == -1) 
         {
             ft_write( "bash: cd: ", 2);
             ft_write(new_dir, 2);
             ft_write(": No such file or directory\n", 2);
-            exit(1);
+            //exit(1);
         }
-    // t_env *ff = all->env;
+    add_to_env(all, getcwd(buff, 1024));
     
-    add_to_env(all, new_dir);
-    // while (ff != NULL)
-    // {
-    //     write(2, ff->line, ft_strlen(ff->line));
-    //     write(2, "\n", 1);
-    //     ff = ff->next;
-    // }
+
 }
 t_env *env_new(char *new_line)
 {
@@ -113,10 +112,10 @@ t_env *env_new(char *new_line)
     int index;
     // if (new_line == NULL)
     //     return NULL;
-
     index = spliter_index(new_line);
         //printf("|s@%s~~|\n\n", new_line+i);
     //else
+    
     new = (t_env *) malloc(sizeof(t_env));
     if (!new)
         exit(1);
@@ -127,6 +126,7 @@ t_env *env_new(char *new_line)
         new->value = NULL;//strdup(new_line+i);
     new->next = NULL;
     new->prev = NULL;
+    
     return (new);
 }
 
@@ -166,7 +166,6 @@ void env_addback(t_env *head, t_env *new)
     t_env *tmp;
     if(new == NULL)
         write(2 ,"\n&&\n\n\n", 6);
-        
         // write(2 ,new->value, 10);
         // write(2 ,"\n\n", 2);
 
@@ -181,6 +180,7 @@ void env_addback(t_env *head, t_env *new)
     //     }
     tmp = env_getlast(head);
     tmp->next = new;
+    
     new->prev = tmp;
 }
 int get_sign_index(char *line)
@@ -195,19 +195,31 @@ int get_sign_index(char *line)
     }
     return (index);
 }
-t_env *create_env_list(char **envp)
+t_env *create_env_list(char **envp_)
 {
     int i;
     t_env *head;
+    char **envp;
     t_env *last;
     i = 1;
+    envp = envp_;
     head = env_new(envp[0]);
+
     while (envp[i] != NULL)
     {
         env_addback(head,env_new(envp[i]));
-        last = env_getlast(head);
+        //last = env_getlast(head);
         i++;
     }
+    i = 1;
+    //  while (envp[i] != NULL)
+    // {
+    //  //   printf("\t{{{{%s}}}}\n", envp[i]);
+    //     //env_addback(head,env_new(envp[i]));
+    //     //last = env_getlast(head);
+    //     i++;
+    // }
+   
     return (head);
 }
 // int main(int argc, char **argv, c har *envp[])

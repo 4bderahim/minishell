@@ -1,4 +1,4 @@
-#include "mini.h"
+#include "minishell.h"
 
 void unset_exp_list(t_all *all, char *var)
 {

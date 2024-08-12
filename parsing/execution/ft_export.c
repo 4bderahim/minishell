@@ -1,4 +1,4 @@
-#include "mini.h"
+#include "minishell.h"
 
 int check_(char *s, int index)
 {
