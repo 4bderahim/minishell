@@ -120,6 +120,7 @@ char *get_output_redirection_file(char **args);
 char *get_append_to_file(char **args);
 
 // ----------------------------------------------
+void    file_error(t_all *all);
 int     exec_built_ins(t_all *all);
 void    setup_signal_handlers();
 void    set_lists(t_all *all, char **env);

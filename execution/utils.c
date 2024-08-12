@@ -97,7 +97,7 @@ void change_dir(t_all *all, char *new_dir)
     char buff[1024];
     if (all->cmd->pipe || chdir(new_dir) == -1) 
         {
-            ft_write( "bash: cd: ", 2);
+            ft_write( "b!!!: cd: ", 2);
             ft_write(new_dir, 2);
             ft_write(": No such file or directory\n", 2);
             //exit(1);

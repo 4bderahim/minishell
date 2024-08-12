@@ -1,11 +1,5 @@
 #include "minishell.h"
 
-void file_error()
-{
-    ft_write(strerror(errno), 2);
-    write(2, "\n", 1);
-    exit(1);
-}
 void redirections_set(t_all *all) 
 {
     int fd;
@@ -24,7 +18,7 @@ void redirections_set(t_all *all)
         else
             fd = open(all->cmd->out_file,O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (fd == -1)
-            file_error();
+            file_error(all);
         dup2(fd, STDOUT_FILENO);
         close(fd);
     }

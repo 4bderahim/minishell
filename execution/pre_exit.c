@@ -1,11 +1,4 @@
 #include "minishell.h"
-
-void exit_way(t_all *all)
-{
-    env_exp_lists_clear(all);
-    exit(1);
-}
-
 void free_env_list(t_all *all)
 {
 
@@ -26,6 +19,7 @@ void free_exp_list(t_all *all)
 	}
 
 }
+
 void	env_exp_lists_clear(t_all *all)
 {
 	if (all->env)
@@ -34,3 +28,16 @@ void	env_exp_lists_clear(t_all *all)
 		free_exp_list(all);
 	ft_lstclear(&all->cmd);
 }
+void exit_way(t_all *all)
+{
+    env_exp_lists_clear(all);
+    exit(1);
+}
+void file_error(t_all *all)
+{
+    ft_write(strerror(errno), 2);
+    write(2, "\n", 1);
+    exit_way(all);
+}
+
+
