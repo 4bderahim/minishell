@@ -42,19 +42,23 @@ int check_before_env(char *s)
 void add_it_to_env(t_all *all, char *new)
 {
     
-   //printf("\t\t|%s|\n\n", new);
-   env_addback(all->env,env_new(new));
-   exp_addback(all->exp, new_exp_(env_getlast(all->env)));
-   // prints the changed env
-    //print_exp_list(all);
-   // write(2, "\n\n(@@)\n", 7);
-   // print_env_list(all);
+   t_env *new_env;
+   t_exp *new_exp;
+
+   new_env  =env_new(new);
+   if (new_env == NULL)
+        ft_error(all);
+   new_exp = new_exp_(env_getlast(all->env));
+   if (new_exp == NULL)
+        ft_error(all);
+   env_addback(all->env, new_env);
+   exp_addback(all->exp, new_exp);
 }
 void identifier_error(char *indentifer)
 {
-    write(2, "export: ", 8);
-    write(2, indentifer, ft_strlen(indentifer));
-    write(2, ": not a valid identifier\n", ft_strlen(": not a valid identifier\n"));
+    ft_write( "export: ", 2);
+    ft_write(indentifer,2);
+    ft_write( ": not a valid identifier\n", 2);
 }
 
 
@@ -77,7 +81,6 @@ void parse_indetifier(t_all *all, char *str)
         t_exp *last;
         last = exp_new(str);
         exp_addback(all->exp, last);//t_exp    *head, t_exp    *new)
-        //print_exp_list(all);
         return ;
     }
     add_it_to_env(all, str);

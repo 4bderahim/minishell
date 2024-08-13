@@ -7,8 +7,9 @@ void redirections_set(t_all *all)
     {
         fd = open(all->cmd->in_file, O_RDONLY);
         if (fd == -1) 
-            exit(1);
-        dup2(fd, STDIN_FILENO);
+            ft_error(all);
+        if (dup2(fd, STDIN_FILENO) < 0)
+            ft_error(all);
         close(fd);
     }
     if (all->cmd->out_file || all->cmd->append_file) 
@@ -18,8 +19,9 @@ void redirections_set(t_all *all)
         else
             fd = open(all->cmd->out_file,O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (fd == -1)
-            file_error(all);
-        dup2(fd, STDOUT_FILENO);
+            ft_error(all);
+        if (dup2(fd, STDOUT_FILENO))
+            ft_error(all);
         close(fd);
     }
 }
@@ -45,7 +47,8 @@ void heredoc_pipe(t_all *all)
         exit(1);
     }
     close(p[1]);
-    dup2(p[0], STDIN_FILENO);
+    if (dup2(p[0], STDIN_FILENO))
+        ft_error(all);
     close(p[0]);
 }
 
@@ -144,11 +147,13 @@ void set_lists(t_all *all, char **env)
     while (env[i])
         i++
         ;
-    envp = (char **) malloc(sizeof(char *) * i);
+    envp = (char **) malloc(sizeof(char *) * (i+1));
     if (!envp)
+       {
+        ft_lstclear(&all->cmd);
         exit(1);
+       }
     envp[i]  = NULL;
-    
     i = 0;
     while (env[i])
     {
@@ -156,18 +161,31 @@ void set_lists(t_all *all, char **env)
         i++;
     }
     all->env = create_env_list(envp);
+    if (all->env == NULL)
+        {
+            ft_lstclear(&all->cmd);
+            exit(1);
+        }
     all->exp = set_export_list(all, envp);
+    if (all->exp == NULL)
+        {
+            free_env_list(all);
+            ft_lstclear(&all->cmd);
+            exit(1);
+        }
 }
-void redirect_in_out_to_pipe(int n_pipes, int index, int pipe[],int *pr_fd)
+void redirect_in_out_to_pipe(int n_pipes, int index, int pipe[],int *pr_fd, t_all *all)
 {
     if (index != 0)
     {
-        dup2(*pr_fd, STDIN_FILENO);  
+        if (dup2(*pr_fd, STDIN_FILENO) < 0)
+            ft_error(all);
         close(*pr_fd);
     }
     if (index < n_pipes -1)
     {
-        dup2(pipe[1],STDOUT_FILENO);
+        if (dup2(pipe[1],STDOUT_FILENO) < 0)
+            ft_error(all);
         close(pipe[1]);
     }
 }
@@ -183,7 +201,8 @@ void execution(t_all **alll, char *envpp[])
     char *full;
     int i = 0;
     all = *alll;
-    full = all->cmd->full_path;
+
+   // full = all->cmd->full_path;
     cmd_ = all->cmd;
     
    
@@ -200,7 +219,7 @@ void execution(t_all **alll, char *envpp[])
     int j = 1;
     int s = 0;
    // setup_signal_handlers();
-
+    
     heredoc_check(all);
     if (exec_built_ins(all))
         {
@@ -210,12 +229,13 @@ void execution(t_all **alll, char *envpp[])
     pid_t pids[n_pipes];
     while (i < n_pipes)
     {
-        pipe(x);
+        if (pipe(x) < 0)
+            ft_error(all);
         pids[i] = fork();
         if (pids[i] == 0)
         {
             reset_signal_handlers();
-            redirect_in_out_to_pipe(n_pipes, i, x, &pr_fd);
+            redirect_in_out_to_pipe(n_pipes, i, x, &pr_fd, all);
             redirections_set(all);
             heredoc_pipe(all);
             exec_piped_built_ins(all, x);
@@ -226,16 +246,20 @@ void execution(t_all **alll, char *envpp[])
         if (i != 0)
             close(pr_fd);
         pr_fd = dup(x[0]);
+        if (pr_fd < 0)
+            ft_error(all);
         close(x[1]);
         close(x[0]);
         i++;
         all->cmd = all->cmd->next;
     }
     close(pr_fd);
-    for (i = 0; i < n_pipes; i++)
+    i = 0;
+    while (i < n_pipes)
     {
         int status;
         waitpid(pids[i], &status, 0);
+        i++;
     }
     all = *alll;
     all->cmd = cmd_;

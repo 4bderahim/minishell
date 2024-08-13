@@ -70,7 +70,7 @@ t_exp *new_exp_(t_env *env)
     t_exp *new;
     new = (t_exp *) malloc(sizeof(t_exp));
     if (!new)
-        exit(1);
+        return (NULL);
     new->value = env->value;
     new->variable = env->variable;
     new->next = NULL;
@@ -83,13 +83,18 @@ t_exp *set_export_list(t_all *all, char **envirement_list)
     
     t_env *env;
     t_exp *exp;
+    t_exp *new;
+
     
     env = all->env;
     exp = new_exp_(env);
     env = env->next;
     while (env != NULL)
     {
-        exp_addback(exp , new_exp_(env));
+        new = new_exp_(env);
+        if (new == NULL)
+            return (NULL);
+        exp_addback(exp , new);
         env = env->next;
     }
     return (exp);

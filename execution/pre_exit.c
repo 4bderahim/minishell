@@ -1,13 +1,11 @@
 #include "minishell.h"
 void free_env_list(t_all *all)
 {
-
 	while (all->env)
 	{
 		free(all->env);
 		all->env = all->env->next;
 	}
-
 }
 void free_exp_list(t_all *all)
 {
@@ -33,7 +31,7 @@ void exit_way(t_all *all)
     env_exp_lists_clear(all);
     exit(1);
 }
-void file_error(t_all *all)
+void ft_error(t_all *all)
 {
     ft_write(strerror(errno), 2);
     write(2, "\n", 1);

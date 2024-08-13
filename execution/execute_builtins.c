@@ -71,7 +71,6 @@ int exec_built_ins(t_all *all)
 
     exec = 0;
     i = 1;
-    
     if (match_word(all->cmd->cmd, "export") && all->cmd->args[1] != NULL)
     {
         while (all->cmd->args[i])
@@ -86,10 +85,16 @@ int exec_built_ins(t_all *all)
         if (all->cmd->args[1] != NULL)
             unset_env(all);
         exec++;
-    }  
-    if (match_word(all->cmd->cmd, "exit") && i == 0)
+    }
+            
+    if (match_word(all->cmd->cmd, "exit"))
         {
-            exit(0);
+
+            if (!all->cmd->pipe)
+                {
+                    env_exp_lists_clear(all);
+                    exit(0);
+                }
             exec++;
         }
     if (match_word(all->cmd->cmd, "cd") )

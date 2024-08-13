@@ -83,12 +83,14 @@ static void	join_the_two_strings(char *all, char const *s1, char const *s2)
 //     return (1);
 // }
 
-char *heredoc(char *heredoc_str, int fd)
+char *heredoc(char *heredoc_str, int fd, t_all *all)
 {
     char *full_str;
     
     char *input;
     full_str = (char *) malloc(1);
+    if (!full_str)
+        ft_error(all);
     full_str[0] = 0;
     while (1)
     {
@@ -113,7 +115,7 @@ void heredoc_check(t_all *all)
         // if(doc->heredoc_delimiter == NULL)
         //     exit(1);
         if (doc->heredoc_delimiter != NULL)
-                doc->heredoc_content = heredoc(doc->heredoc_delimiter, 1);
+                doc->heredoc_content = heredoc(doc->heredoc_delimiter, 1, all);
         doc = doc->next;
     }
 }
