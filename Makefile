@@ -1,6 +1,6 @@
 CC = cc
 CFLAGS = #-fsanitize=address -g #-Wall -Wextra -Werror
-XFLAGS =  -L /Users/ael-krid/.brew/Cellar/readline/8.2.10/lib -I /Users/ael-krid/.brew/Cellar/readline/8.2.10/include 
+XFLAGS = -I /Users/ael-krid/.brew/Cellar/readline/8.2.10/include 
 
 HEADER = -I ./include/
 
@@ -10,26 +10,25 @@ PARSING_SRCS = ./parsing/main.c ./parsing/ft_libc1.c ./parsing/ft_split.c \
 								./parsing/ft_list.c ./parsing/lexer.c ./parsing/utils_1.c ./parsing/cmd_infos.c
 PARSING_OBJS = ${PARSING_SRCS:.c=.o}
 
-EXEC_SRCS = ./execution/pre_exit.c ./execution/execute_builtins.c ./execution/unset_vars.c \
+EXEC_SRCS = ./execution/ft_chdir.c ./execution/exec.c  ./execution/pre_exit.c ./execution/execute_builtins.c ./execution/unset_vars.c \
  						./execution/export_list.c  ./execution/ft_heredoc.c ./execution/utils.c \
 						./execution/ft_export.c 
-EXEC_RD = ./exec/exec.o
+EXEC_RD = ./exec/signals_utils.o 
 EXEC_OBJS = ${EXEC_SRCS:.c=.o}
 
 all: $(NAME)
 
 $(NAME): $(PARSING_OBJS) $(EXEC_OBJS) $(EXEC_RD)
-	$(CC) $(CFLAGS) $(PARSING_OBJS) $(EXEC_RD) $(EXEC_OBJS) -o $(NAME) -lreadline $(XFLAGS)
+	$(CC) $(CFLAGS) -L /Users/ael-krid/.brew/Cellar/readline/8.2.10/lib $(EXEC_RD) $(PARSING_OBJS) $(EXEC_OBJS) -o $(NAME) -lreadline $(XFLAGS)
 
 ./parsing/%.o: ./parsing/%.c ./include/minishell.h
 	$(CC) $(CFLAGS) $(HEADER) -c $< -o $@
-
-exec/%.o: ./exec/exec.c ./include/minishell.h
-	$(CC) $(CFLAGS) $(XFLAGS) $(HEADER) -c $< -o $@
 ./execution/%.o: ./execution/%.c ./include/minishell.h
 	$(CC) $(CFLAGS) $(HEADER) -c $< -o $@
+./exec/signals_utils.o: ./exec/signals_utils.c ./include/minishell.h
+	$(CC) $(CFLAGS) $(HEADER)  $(XFLAGS) -c  $< -o $@  
 clean:
-	rm -f $(PARSING_OBJS) $(EXEC_OBJS)
+	rm -f $(PARSING_OBJS) $(EXEC_OBJS) $(EXEC_RD)
 
 fclean: clean
 	rm -rf $(NAME)

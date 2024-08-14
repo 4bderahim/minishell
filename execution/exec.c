@@ -47,55 +47,12 @@ void heredoc_pipe(t_all *all)
         exit(1);
     }
     close(p[1]);
-    if (dup2(p[0], STDIN_FILENO))
+    if (dup2(p[0], STDIN_FILENO) < 0)
         ft_error(all);
     close(p[0]);
 }
 
-void signal_handler(int signo) {
-    if (signo == SIGINT)
-        {
-             printf("\n");
-            rl_on_new_line();
-             rl_replace_line("", 0);// fix compiling 
-            rl_redisplay();
-            }
-    if (signo == SIGQUIT)
-        {
-            rl_redisplay();
 
-            //rl_on_new_line();
-            // rl_on_new_line();
-        }
-    if (signo == SIGTSTP)
-        {
-        
-            rl_on_new_line();
-            //exit(1);
-            // rl_on_new_line();
-        }
-}
-
-void setup_signal_handlers() 
-{
-    struct sigaction sa;
-    sa.sa_handler = signal_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART;
-
-    sigaction(SIGINT, &sa, NULL);
-
-     sigaction(SIGTSTP, &sa, NULL);
-    sigaction(SIGQUIT, &sa, NULL);
-}
-
-
-
-void reset_signal_handlers() {
-    signal(SIGINT, SIG_DFL);
-     signal(SIGQUIT, SIG_DFL);
-    // signal(SIGTSTP, SIG_DFL);
-};
 
 
 // int exec_built_ins(t_all *all)
@@ -193,41 +150,31 @@ void redirect_in_out_to_pipe(int n_pipes, int index, int pipe[],int *pr_fd, t_al
 void execution(t_all **alll, char *envpp[])
 {
     // int t;
-    char *line;
+    // char *line;
     
     // t_cmd *f;
     t_all *all;
     t_cmd *cmd_;
-    char *full;
-    int i = 0;
+    // char *full;
+    int i;
+    
+    i = 0;
     all = *alll;
 
-   // full = all->cmd->full_path;
     cmd_ = all->cmd;
-    
-   
-//    all->cmd = 
-   // make(all, envp);
-    
-   // t_env *ff = create_env_list(envp);
-    //usepipe();
     int x[2];
     int pr_fd;
-   // char *envp[] = {NULL};
-    int dd;
-    int n_pipes = all->nums_of_cmds;
-    int j = 1;
-    int s = 0;
+    // int n_pipes = ;
    // setup_signal_handlers();
     
     heredoc_check(all);
     if (exec_built_ins(all))
         {
-            n_pipes--;
+            all->nums_of_cmds--;
             all->cmd = all->cmd->next;
         }
-    pid_t pids[n_pipes];
-    while (i < n_pipes)
+    pid_t pids[all->nums_of_cmds];
+    while (i < all->nums_of_cmds)
     {
         if (pipe(x) < 0)
             ft_error(all);
@@ -235,7 +182,7 @@ void execution(t_all **alll, char *envpp[])
         if (pids[i] == 0)
         {
             reset_signal_handlers();
-            redirect_in_out_to_pipe(n_pipes, i, x, &pr_fd, all);
+            redirect_in_out_to_pipe(all->nums_of_cmds, i, x, &pr_fd, all);
             redirections_set(all);
             heredoc_pipe(all);
             exec_piped_built_ins(all, x);
@@ -255,7 +202,7 @@ void execution(t_all **alll, char *envpp[])
     }
     close(pr_fd);
     i = 0;
-    while (i < n_pipes)
+    while (i < all->nums_of_cmds)
     {
         int status;
         waitpid(pids[i], &status, 0);

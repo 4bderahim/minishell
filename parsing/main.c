@@ -29,7 +29,10 @@ int main(int ac, char **av, char **env)
   while(1)
   {
     char *read = readline("minishell > ");
-    if(!read || !ft_strlen(read))
+    if(!read)
+      exit(0);
+    
+    if (!ft_strlen(read))
       continue;
     add_history(read);
     if(!ft_lexer(read, &all))

@@ -95,7 +95,7 @@ int ft_isspace(char c);
 
 // ft_list.c
 t_cmd	*ft_lstnew(char **args, int args_nbr, int pipe);
-void	ft_lstadd_back(t_cmd **lst, t_cmd *new);
+void	ft_lstadd_back(t_cmd **lst, t_cmd *);
 // void  ft_init(t_shell *shell);
 void    ft_lstclear(t_cmd **lst);
 
@@ -120,6 +120,10 @@ char *get_output_redirection_file(char **args);
 char *get_append_to_file(char **args);
 
 // ----------------------------------------------
+void    change_dir(t_all *all, char *new_dir);
+void    reset_signal_handlers() ;
+void    signal_handler(int signo);
+void    setup_signal_handlers();
 void    env_exp_lists_clear(t_all *all);
 void    free_env_list(t_all *all);
 void    ft_error(t_all *all);
@@ -131,7 +135,7 @@ void    heredoc_check(t_all *all);
 t_exp   *new_exp_(t_env *env);
 int     spliter_index(char *str);
 t_exp   *exp_new(char *new_line);// not used
-void    exp_addback(t_exp    *head, t_exp    *new);
+void    exp_addback(t_exp    *head, t_exp    *);
 t_exp   *set_export_list(t_all *all, char **env);
 void    identifier_error(char *indentifer);
 void    ft_write(char *str, int fd);
@@ -140,7 +144,7 @@ void    ft_pwd(t_all *all);
 void    parse_indetifier(t_all *all, char *str);
 void    unset_env(t_all *all);
 void    unset_exp(t_all *all);
-void    env_addback(t_env *head, t_env *new);
+void    env_addback(t_env *head, t_env *);
 char    *ft_strjoin(char *s1, char *s2);
 t_env   *env_new(char *new_line);
 t_env   *env_getlast(t_env *env);
