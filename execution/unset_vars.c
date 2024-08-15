@@ -45,8 +45,6 @@ void unset_exp(t_all *all)
                 }
             exp = exp->next;
        }
-    //    if (env == NULL)
-    //         identifier_error(all->cmd->args[i]);
        i++;
     }
 }
@@ -95,8 +93,6 @@ void unset_env(t_all *all)
                 }
             env = env->next;
        }
-    //    if (env == NULL)
-    //         identifier_error(all->cmd->args[i]);
        i++;
     }
 }

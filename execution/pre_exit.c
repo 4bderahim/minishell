@@ -15,7 +15,6 @@ void free_exp_list(t_all *all)
 		free(all->exp);
 		all->exp = all->exp->next;
 	}
-
 }
 
 void	env_exp_lists_clear(t_all *all)
