@@ -78,7 +78,7 @@ t_exp *new_exp_(t_env *env)
     // printf("%s=%s\n", new->value, new->variable);
     return (new);
 }
-t_exp *set_export_list(t_all *all, char **envirement_list)
+t_exp *set_export_list(t_all *all)
 {
     
     t_env *env;

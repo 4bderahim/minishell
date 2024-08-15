@@ -5,7 +5,7 @@ void signal_handler(int signo)
 {
     if (signo == SIGINT)
         {
-             printf("\n");
+             ft_write("\n", 1);
              rl_on_new_line();
              rl_replace_line("", 0);// fix compiling 
              rl_redisplay();
@@ -18,7 +18,6 @@ void signal_handler(int signo)
         }
     if (signo == SIGTSTP)
         {
-        
             rl_on_new_line();
             exit(1);
             // rl_on_new_line();

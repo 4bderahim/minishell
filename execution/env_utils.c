@@ -45,22 +45,20 @@ void env_addback(t_env *head, t_env *new)
     new->prev = tmp;
 }
 
-t_env *create_env_list(char **envp_)
+t_env *create_env_list(char **envp)
 {
     int i;
     t_env *head;
-    char **envp;
     t_env *new;
     i = 1;
-    envp = envp_;
+    
     head = env_new(envp[0]);
-
     while (envp[i] != NULL)
     {
         new = env_new(envp[i]);
         if (new == NULL)
             {
-                free(envp_);
+                free(envp);
                 return (NULL);
             }
         env_addback(head,new);
