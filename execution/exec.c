@@ -61,7 +61,7 @@ void set_lists(t_all *all, char **env)
     i = 0;
     while (env[i])
     {
-        envp[i] = strdup(env[i]);
+        envp[i] = ft_strdup(env[i]);
         i++;
     }
     all->env = create_env_list(envp);
@@ -77,6 +77,7 @@ void set_lists(t_all *all, char **env)
             ft_lstclear(&all->cmd);
             exit(1);
         }
+    free(envp);
 }
 
 

@@ -12,7 +12,10 @@ size_t count_commands(t_cmd *cmd)
   }
   return counter;
 }
-
+void s()
+{
+  system("leaks -q minishell");
+}
 int main(int ac, char **av, char **env)
 {
   t_all *all;
@@ -21,6 +24,7 @@ int main(int ac, char **av, char **env)
   all->cmd = NULL;
   // all->nums_of_cmds = 1;
   // ft_init(shell);
+  atexit(s);
   using_history();
   set_lists(all, env);
   setup_signal_handlers();

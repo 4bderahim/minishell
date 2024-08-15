@@ -1,19 +1,26 @@
 #include "minishell.h"
 void free_env_list(t_all *all)
 {
+	t_env *tmp;
+
+	
 	while (all->env)
 	{
-		free(all->env);
+		tmp = all->env;
 		all->env = all->env->next;
+		free(tmp);
 	}
 }
 void free_exp_list(t_all *all)
 {
+	t_exp *tmp;
 
+	
 	while (all->exp)
 	{
-		free(all->exp);
+		tmp = all->exp;
 		all->exp = all->exp->next;
+		free(tmp);
 	}
 }
 
@@ -21,9 +28,9 @@ void	env_exp_lists_clear(t_all *all)
 {
 	if (all->env)
 		free_env_list(all);
-	if (all->exp)
-		free_exp_list(all);
-	ft_lstclear(&all->cmd);
+	// if (all->exp)
+	// 	free_exp_list(all);
+	//ft_lstclear(&all->cmd);
 }
 void exit_way(t_all *all)
 {

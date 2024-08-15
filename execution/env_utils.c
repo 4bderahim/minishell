@@ -59,9 +59,13 @@ t_env *create_env_list(char **envp_)
     {
         new = env_new(envp[i]);
         if (new == NULL)
-            return (NULL);
+            {
+                free(envp_);
+                return (NULL);
+            }
         env_addback(head,new);
         i++;
     }
+    
     return (head);
 }
