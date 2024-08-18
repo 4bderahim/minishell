@@ -1,52 +1,61 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ael-krid <ael-krid@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/16 14:54:34 by ael-krid          #+#    #+#             */
+/*   Updated: 2024/08/16 14:54:50 by ael-krid         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void ft_write(char *str, int fd)
+void	ft_write(char *str, int fd)
 {
-
-    if (str == NULL)
-        return ;
-    if (write(fd, str, ft_strlen(str)) == -1)
-        {
-            write(2, "error\n", 7);
-            exit(1);
-        }
+	if (str == NULL)
+		return ;
+	if (write(fd, str, ft_strlen(str)) == -1)
+	{
+		write(2, "error\n", 7);
+		exit(1);
+	}
 }
-void ft_echo(char **str, int fd)
+void	ft_echo(char **str, int fd)
 {
-    int i;
-    int flag;
+	int	i;
+	int	flag;
 
-    flag = 0;
-    i = 0;
-
-    if (*str == NULL)
-        ft_write("\n", fd);
-    if (match_word("-n", *str))
-        {
-            if (str[1] == NULL)
-                return ;
-            flag = 1;
-            i++;
-    }
-    while (str[i])
-    {
-        ft_write(str[i], fd);
-        if (str[i+1] != NULL)
-            ft_write(" ", fd);
-        i++;
-    }
-
-    if (flag != 1)
-        ft_write("\n", fd);
-
+	flag = 0;
+	i = 0;
+	if (*str == NULL)
+		ft_write("\n", fd);
+	if (match_word("-n", *str))
+	{
+		if (str[1] == NULL)
+			return ;
+		flag = 1;
+		i++;
+	}
+	while (str[i])
+	{
+		ft_write(str[i], fd);
+		if (str[i + 1] != NULL)
+			ft_write(" ", fd);
+		i++;
+	}
+	if (flag != 1)
+		ft_write("\n", fd);
 }
-void ft_pwd(t_all *all)
+void	ft_pwd(t_all *all)
 {
-    char buff[1024];
-    char *ret;
-    ret = getcwd(buff, 1024);
-    if (ret == NULL)
-        ft_error(all);
-    
-    ft_write(ret, STDOUT_FILENO);
+	char	buff[1024];
+	char	*ret;
+
+	ret = getcwd(buff, 1024);
+	if (ret == NULL)
+		ft_error(all);
+	ft_write(ret, STDOUT_FILENO);
+	ft_write("\n", STDOUT_FILENO);
 }

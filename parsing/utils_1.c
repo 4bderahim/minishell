@@ -3,7 +3,7 @@
 void throw_error(char *msg)
 {
   printf("%sError: %s%s\n", RED, msg, NC);
-  // exit(1);
+  exit(1);
 }
 
 int find_pipe_index(char *str)
@@ -100,11 +100,10 @@ void print_list(t_cmd *head)
     }
     printf("%s %s %s", CYAN, head->full_path, NC);
     printf("%s %s %s", RED, head->in_file, NC);
-    printf("%s %s %s", RED, head->out_file, NC);
+    printf("%s %s %s", GREEN, head->out_file, NC);
     printf("%s %s %s", RED, head->append_file, NC);
     printf("%s %d %s", GREEN, head->pipe, NC);
     head = head->next;
-    printf("\n");
   }
   printf("\n-----------------------------\n");
 }
@@ -116,6 +115,8 @@ size_t nums_of_chars(char *str, char c)
 
   i = 0;
   counter = 0;
+  if(!str)
+    return counter;
   while(str[i])
   {
     if(str[i] == c)
@@ -144,6 +145,78 @@ void skip_reds(char *str, int *i, char c)
     throw_error("parse error");
 }
 
+size_t get_vars_length(char *str)
+{
+  size_t i;
+  size_t length;
+
+  i = 0;
+  length = 0;
+  if(!str)
+    return length;
+  while(str[i])
+  {
+    while(str[i] && ft_isspace(str[i]))
+        i++;
+    if(str[i] == VAR_SIGN && str[i - 1] != BACK_SLASH)
+    {
+      while(str[i] && str[i] != DOUBLE_QUOTE && str[i] != PIPE)
+      {
+        i++;
+        length++;
+      }
+      break;
+    }
+    i++;
+  }
+  return length;
+}
+
+char *find_variable(char *str)
+{
+  size_t i;
+  size_t j;
+  char *vars;
+
+  i = 0;
+  j = 0;
+  if(!str)
+    return NULL;
+  // printf("%slength of variable is %zu%s\n", MAGENTA, , NC);
+  vars = malloc(sizeof(char) * (get_vars_length(str) + 1));
+  while(str[i])
+  {
+    while(str[i] && ft_isspace(str[i]))
+        i++;
+    if(str[i] == VAR_SIGN && str[i - 1] != BACK_SLASH)
+    {
+      while(str[i] && str[i] != DOUBLE_QUOTE)
+      {
+        vars[j++] = str[i];
+        i++;
+      }
+    }
+    i++;
+  }
+  printf("%sall vars: %s%s\n", YELLOW, vars, NC);
+  return vars;
+}
+
+// char *get_variable(char *str)
+// {
+//   size_t i;
+//   char var;
+
+//   i = 0;
+//   while()
+//   {
+
+//   }
+//   return  var
+// }
+
+
+
 char *find_and_remove(char *str, char c)
 {
   int i;
@@ -154,6 +227,8 @@ char *find_and_remove(char *str, char c)
   i = 0;
   j = 0;
   len = ft_strlen(str) - nums_of_chars(str, c) + 1;
+  if(!str)
+    return NULL;
   res = (char *)malloc(sizeof(char) * len);
   while(str[i])
   {
@@ -166,5 +241,7 @@ char *find_and_remove(char *str, char c)
   }
   res[j] = '\0';
   free(str);
+  str = NULL;
+  printf("after fixing: %s\n", res);
   return res;
 }

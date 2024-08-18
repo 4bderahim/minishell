@@ -20,6 +20,7 @@
 #define IN_RED '<'
 #define OUT_RED '>'
 #define VAR_SIGN '$'
+#define SLASH '/'
 #define BACK_SLASH '\\'
 
 # define NC "\e[0m"
@@ -40,7 +41,7 @@ typedef struct s_command_line {
   char *out_file; // For output redirection (>)
   char *append_file; // For append redirection (>>)
   // char *append_from_file; // For append redirection (>>)
-  char *heredoc_delimiter; // For heredoc (<<)
+  char **heredoc_delimiter; // For heredoc (<<)
   char *heredoc_content; // Content of heredoc
   int   pipe; // 1 if this command pipes to next, 0 otherwise
   struct s_command_line *next; // Pointer to next command in pipeline
@@ -92,6 +93,8 @@ int ft_isalpha(char c);
 int ft_strchr(char *str, char c);
 int ft_strchr_pro(char *str, char c1, char c2, bool inside_quotes);
 int ft_isspace(char c);
+char *ft_strndup(char *str, size_t n);
+
 
 // ft_list.c
 t_cmd	*ft_lstnew(char **args, int args_nbr, int pipe);
@@ -111,25 +114,36 @@ void ft_free(char **args);
 void print_list(t_cmd *head);
 char *find_and_remove(char *str, char c);
 void skip_reds(char *str, int *i, char c);
+size_t get_vars_length(char *str);
 
 // cmd_infos.c
 char *get_path(char *cmd);
 char *get_input_redirection_file(char **args);
 char *get_output_redirection_file(char **args);
+char **get_herdoc_delimiter(char **args);
+
+// char *get_herdoc_delimiter(char **args);
 // char *get_append_from_file(char **args);
 char *get_append_to_file(char **args);
+char *handle_variables(char *str, t_env *env, size_t length);
+
+
+// executables.c
+void get_executable(char *cmd);
+
 
 // ----------------------------------------------
+void    ft_error(t_all *all);
+void    mirroring_env_and_exp(t_all *all);
 void    heredoc_pipe(t_all *all);
 void    redirect_in_out_to_pipe(int n_pipes, int index, int pipe[],int *pr_fd, t_all *all);
 void    redirections_set(t_all *all);
-void    change_dir(t_all *all, char *new_dir);
+// void    change_dir(t_all *all, char *new_dir);
 void    reset_signal_handlers() ;
 void    signal_handler(int signo);
 void    setup_signal_handlers();
 void    env_exp_lists_clear(t_all *all);
 void    free_env_list(t_all *all);
-void    ft_error(t_all *all);
 int     exec_built_ins(t_all *all);
 void    setup_signal_handlers();
 void    set_lists(t_all *all, char **env);
@@ -146,7 +160,7 @@ void    change_dir(t_all *all, char *new_dir);
 void    ft_pwd(t_all *all);
 void    parse_indetifier(t_all *all, char *str);
 void    unset_env(t_all *all);
-void    unset_exp(t_all *all);
+int    unset_exp(t_all *all, t_exp *exp_, int ret);
 void    env_addback(t_env *head, t_env *);
 char    *ft_strjoin(char *s1, char *s2);
 t_env   *env_new(char *new_line);

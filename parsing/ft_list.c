@@ -8,16 +8,18 @@
 //   shell->state = NORMAL;
 // }
 
-static bool is_redirection(char *str)
+static int is_redirection(char *str, char *next)
 {
-	if(!ft_strcmp(str, ">"))
-		return true;
-	else if(!ft_strcmp(str, ">>"))
-		return true;
-	else if(!ft_strcmp(str, "<"))
-		return true;
+	if(!ft_strcmp(str, ">") && ft_strcmp(next, ">"))
+		return 2;
+	else if(!ft_strcmp(str, ">") && !ft_strcmp(next, ">"))
+		return 3;
+	else if(!ft_strcmp(str, "<") && ft_strcmp(next, "<"))
+		return 2;
+	else if(!ft_strcmp(str, "<") && !ft_strcmp(next, "<"))
+		return 3;
 	else
-		return false;
+		return 0;
 }
 
 static size_t count_valid_args(char **args)
@@ -29,8 +31,8 @@ static size_t count_valid_args(char **args)
 	counter = 0;
 	while(args[i])
 	{
-		while(args[i] && is_redirection(args[i]))
-			i += 2;
+		while(args[i] && is_redirection(args[i], args[i + 1]))
+			i += is_redirection(args[i], args[i + 1]);
 		if(!args[i])
 			break;
 		counter++;
@@ -39,37 +41,23 @@ static size_t count_valid_args(char **args)
 	return counter;
 }
 
-// char *check_arg(char *arg)
-// {
-// 	size_t i;
-
-// 	i = 0;
-// 	while(arg[i])
-// 	{
-// 		if((arg[i] == BACK_SLASH && arg[i + 1] == VAR_SIGN) || arg[i] && arg[i] == VAR_SIGN)
-// 		{
-
-// 		}
-// 	}
-// }
-
 char **ft_args_dup(char **args)
 {
 	int i;
 	int j;
 	char **result;
-	char arg;
+	char *arg;
 
 	i = 0;
 	j = 0;
-	// arg = NULL;
+	arg = NULL;
 	result = malloc(sizeof(char *) * (count_valid_args(args) + 1));
 	if(!result)
 		return NULL;
 	while (args[i])
 	{
-		while(args[i] && is_redirection(args[i]))
-			i += 2;
+		while(args[i] && is_redirection(args[i], args[i + 1]))
+			i += is_redirection(args[i], args[i + 1]);
 		if(!args[i])
 			break;
 		// arg = check_arg(args[i]);
@@ -95,17 +83,44 @@ char **ft_args_dup(char **args)
 
 void free_cmd(t_cmd *cmd)
 {
-	ft_free(cmd->args);
-	free(cmd->cmd);
-	free(cmd->in_file);
-	free(cmd->out_file);
-	free(cmd->heredoc_content);
-	free(cmd->heredoc_delimiter);
-	free(cmd->full_path);
-	free(cmd->append_file);
-	free(cmd);
-	cmd = NULL;
+	if(cmd->args)
+		ft_free(cmd->args);
+	if(cmd->cmd)
+		free(cmd->cmd);
+	if(cmd->in_file)
+		free(cmd->in_file);
+	if(cmd->out_file)
+		free(cmd->out_file);
+	if(cmd->heredoc_content)
+		free(cmd->heredoc_content);
+	if(cmd->heredoc_delimiter)
+		free(cmd->heredoc_delimiter);
+	if(cmd->full_path)
+		free(cmd->full_path);
+	if(cmd->append_file)
+		free(cmd->append_file);
+	// if(cmd)
+	// free(cmd);
+	// cmd = NULL;
 }
+
+bool is_builtin(char *cmd)
+{
+	if(!ft_strcmp(cmd, "export"))
+		return true;
+	else if(!ft_strcmp(cmd, "unset"))
+		return true;
+	// else if(!ft_strcmp(cmd, "unset"))
+	// 	return true;
+	// else if(!ft_strcmp(cmd, "unset"))
+	// 	return true;
+	return false;
+}
+
+// bool is_executable(char *cmd)
+// {
+	
+// }
 
 t_cmd	*ft_lstnew(char **args, int args_nbr, int pipe)
 {
@@ -121,7 +136,8 @@ t_cmd	*ft_lstnew(char **args, int args_nbr, int pipe)
 	new_node->in_file = get_input_redirection_file(args);
 	new_node->out_file = get_output_redirection_file(args);
 	new_node->append_file = get_append_to_file(args);
-	new_node->heredoc_delimiter = NULL;
+	new_node->heredoc_delimiter = get_herdoc_delimiter(args);
+	// new_node->heredoc_delimiter = NULL;
 	new_node->heredoc_content = NULL;
 	new_node->pipe = pipe;
 	new_node->next = NULL;
@@ -129,10 +145,20 @@ t_cmd	*ft_lstnew(char **args, int args_nbr, int pipe)
 	new_node->full_path = get_path(new_node->cmd);
 	if(!new_node->full_path)
 	{
-		free_cmd(new_node);
+		// get_executable(new_node->cmd);
+		if(!ft_strcmp(new_node->cmd, "exit"))
+			exit(0);
+		// if(!is_builtin(new_node->cmd) && !is_path(new_node->cmd))
+		else if (is_builtin(new_node->cmd))
+			return new_node;
+		// else if (is_executable(new_node->cmd))
+		// 	return new_node;
+		ft_lstclear(&new_node);
+		// if(new_node)
+			// free_cmd(new_node);
+		// printf("cmd not found hhhhhh\n");
 		return NULL;
 	}
-	// ft_free(args);
 	return (new_node);
 }
 
@@ -162,7 +188,6 @@ void	ft_lstadd_back(t_cmd **cmd, t_cmd *new)
 	current->next = new;
 }
 
-
 void    ft_lstclear(t_cmd **lst)
 {
 	t_cmd  *current;
@@ -174,7 +199,7 @@ void    ft_lstclear(t_cmd **lst)
 		current = (*lst)->next;
 		ft_free((*lst)->args);
 		free((*lst)->cmd);
-		free((*lst)->in_file);
+		// free((*lst)->in_file);
 		free((*lst)->out_file);
 		free((*lst)->heredoc_content);
 		free((*lst)->heredoc_delimiter);

@@ -7,7 +7,7 @@ void signal_handler(int signo)
         {
              ft_write("\n", 1);
              rl_on_new_line();
-             rl_replace_line("", 0);// fix compiling 
+            //  rl_replace_line("", 0);// fix compiling 
              rl_redisplay();
             }
     if (signo == SIGQUIT)
