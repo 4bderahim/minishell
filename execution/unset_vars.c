@@ -47,10 +47,10 @@ void	mirroring_exp_and_env(t_all *all)
 
 	env = all->env;
 	exp = all->exp;
-
 	while (env != NULL && exp != NULL)
 	{
-		if (match_word(env->variable, exp->variable) & !match_word(env->value, exp->value))
+		if (match_word(env->variable, exp->variable) & !match_word(env->value,
+				exp->value))
 			env->value = exp->value;
 		exp = exp->next;
 		env = env->next;
@@ -59,7 +59,7 @@ void	mirroring_exp_and_env(t_all *all)
 int	unset_exp(t_all *all, t_exp *exp_, int ret)
 {
 	t_exp	*exp;
-	
+
 	exp = all->exp;
 	while (exp != NULL)
 	{

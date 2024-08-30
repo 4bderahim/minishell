@@ -29,8 +29,8 @@ t_exp	*exp_getlast(t_exp *exp)
 }
 int	spliter_index(char *string)
 {
-	int	i;
-	char *str;
+	int		i;
+	char	*str;
 
 	str = string;
 	i = 0;
@@ -39,8 +39,8 @@ int	spliter_index(char *string)
 		if (str[i] == '=')
 		{
 			str[i] = '\0';
-			i = i+1;
-			break;
+			i = i + 1;
+			break ;
 		}
 		i++;
 	}
@@ -60,9 +60,9 @@ t_exp	*exp_new(char *new_line)
 	if (new_line[index] == '\0')
 		new->value = NULL;
 	else
-		{
-			new->value = ft_strdup(new_line + index);
-		}
+	{
+		new->value = ft_strdup(new_line + index);
+	}
 	new->next = NULL;
 	return (new);
 }
@@ -71,18 +71,9 @@ void	exp_addback(t_exp *head, t_exp *new)
 {
 	t_exp	*tmp;
 
-	// tmp = head;
-	// if (head == NULL)
-	//     {
-	//         if (new == NULL)
-	//             return ;
-	//         head = new;
-	//         return ;
-	//     }
 	tmp = exp_getlast(head);
 	tmp->next = new;
 	new->prev = tmp;
-	//new->prev = tmp;
 }
 t_exp	*new_exp_(t_env *env)
 {
@@ -91,11 +82,10 @@ t_exp	*new_exp_(t_env *env)
 	new = (t_exp *)malloc(sizeof(t_exp));
 	if (!new)
 		return (NULL);
-	new->value = env->value;
-	new->variable = env->variable;
+	new->value = ft_strdup(env->value);
+	new->variable = ft_strdup(env->variable);
 	new->next = NULL;
 	new->prev = NULL;
-	// printf("%s=%s\n", new->value, new->variable);
 	return (new);
 }
 t_exp	*set_export_list(t_all *all)

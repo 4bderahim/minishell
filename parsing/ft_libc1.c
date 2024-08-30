@@ -20,7 +20,11 @@ char *ft_strdup(char *str)
 
   i = 0;
   if(!str)  
+	{
+		// printf("null at strdup\n");
     return NULL;
+	}
+	// printf("strdup: %s\n", str);
   buf = malloc(sizeof(char) * (ft_strlen(str) + 1));
   while(str[i])
   {
@@ -64,8 +68,6 @@ char	*ft_strjoin(char *s1, char *s2)
 
 	s1_len = ft_strlen(s1);
 	s2_len = ft_strlen(s2);
-	// printf("s1: %s\n", s1);
-	// printf("s2: %s\n", s2);
 	if(!s1 && s2)
 		return ft_strdup(s2);
 	else if(!s2 && s1)
@@ -77,7 +79,8 @@ char	*ft_strjoin(char *s1, char *s2)
 		return (NULL);
 	ft_strlcpy(res, s1, s1_len + 1);
 	ft_strlcpy(res + s1_len, s2, s1_len + s2_len + 1);
-	// free(s1);
+	free(s1);
+	s1 = NULL;
 	return (res);
 }
 
@@ -183,6 +186,9 @@ int ft_strchr_pro(char *str, char c1, char c2, bool inside_quotes)
 	int i;
 
 	i = 0;
+	if(!str)
+		return -1;
+	// printf("strchr pro max: %s\n", str);
 	while(str[i] && str[i] != c1 && str[i] != c2)
 	{
 		i++;

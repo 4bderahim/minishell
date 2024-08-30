@@ -10,7 +10,7 @@ char *ft_strtok(char *str)
   i = 0;
   j = 0;
   len = ft_strlen(str);
-  printf("len : %zu\n", len);
+  // printf("len : %zu\n", len);
   if(!str)
     return NULL;
   while(str[i] && ft_isspace(str[i]))
@@ -21,7 +21,7 @@ char *ft_strtok(char *str)
   while(i < len)
     result[j++] = str[i++];
   result[j] = '\0';
-  printf("%sft_strtok:%s---> %zu%s\n", MAGENTA, result, ft_strlen(result), NC);
+  // printf("%sft_strtok:%s---> %zu%s\n", MAGENTA, result, ft_strlen(result), NC);
   free(str);
   return result;
 }
@@ -38,7 +38,7 @@ char *get_only_var(char *str)
     len++;
   // result = malloc(len + 1);
   result = ft_substr(str, 0, len);
-  printf("only variable: %s\n", result);
+  // printf("only variable: %s\n", result);
   return result;
 }
 
@@ -55,12 +55,13 @@ char *get_var_value(char *str, t_env *env)
   {
     if(!ft_strcmp(var, env->variable))
     {
-      result = ft_strjoin(env->value, rest);
+      result = ft_strjoin(ft_strdup(env->value), rest);
       break;
     }
     env = env->next;
   }
   free(str);
+  str = NULL;
   free(var);
   if(!result)
     return rest;
@@ -68,40 +69,63 @@ char *get_var_value(char *str, t_env *env)
   return result;
 }
 
-char *handle_variables(char *str, t_env *env, size_t length)
+int	ft_isalnum(int c)
 {
-  size_t i;
-  char **vars;
-  char *var;
-  char *result;
-  // char *rest;
+	if ((c >= 48 && c <= 57) || (c >= 97 && c <= 122) || (c >= 65 && c <= 90))
+		return (1);
+	return (0);
+}
 
-  printf("===> +length: %zu\n", length);
-  i = 0;
-  if(!str)
-  {
-    printf("%s-------> NULL <----------%s\n", GREEN, NC);
-    return NULL;
-  }
-  vars = ft_split(str, '$');
-  result = NULL;
-  while (vars[i])
-  {
-    printf("var ---> %s\n", vars[i]);
+char *handle_variables(char *str, t_env *env, size_t length, t_all *all)
+{
+  // free();
+  size_t i = 0;
+  size_t len = strlen(str);
+  // char* output = malloc(len * 3);
+  char output[1024];
+  char* var_value;
+  output[0] = '\0';
 
-    vars[i] = find_and_remove(vars[i], DOUBLE_QUOTE);
-    // rest = ft_substr()
-    // printf("var length: %zu\n", get_length(vars[i]));
-    // result = 
-    vars[i] = get_var_value(vars[i], env);
-    printf("after getting value: %s\n", vars[i]);
-    // var = get_variable(vars[i]);
-    result = ft_strjoin(result, vars[i]);
-    printf("result: %s\n", result);
-    i++;
+  while (i < len)
+  {
+    if (str[i] == '$') 
+    {
+      i++;
+      if(i < len && str[i] == '?')
+      {
+
+        var_value = ft_itoa(all->exit_status);
+        strcat(output, var_value);
+        free(var_value);
+        var_value = NULL;
+        i++;
+      }
+      else
+      {
+        char var_name[1024];
+        size_t var_len = 0;
+        while (i < len && (ft_isalnum(str[i]) || str[i] == '_'))
+        var_name[var_len++] = str[i++];
+        var_name[var_len] = '\0';
+        var_value = get_var_value(ft_strdup(var_name), env);
+        // printf("varname is : %s\n", var_name);
+        strcat(output, var_value);
+        free(var_value);
+        var_value = NULL;
+      }
+      
+    }
+    else
+    {
+      size_t j = ft_strlen(output);
+      output[j] = str[i];
+      output[j + 1] = '\0';
+      i++;
+    }
   }
+  // printf("-------> waaaaaaaaaaaaaaaaa3\n");
+  free(var_value);
   free(str);
   str = NULL;
-  ft_free(vars);
-  return result;
+  return ft_strdup(output);
 }

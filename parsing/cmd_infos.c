@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-char *get_input_redirection_file(char **args)
+char *get_input_redirection_file(char **args, t_all *all)
 {
   int i;
   char *in_file;
@@ -9,16 +9,17 @@ char *get_input_redirection_file(char **args)
   in_file = NULL;
   while(args[i])
   {
-    if(!ft_strcmp(args[i], "<") && ft_strcmp(args[i + 1], "<") && ft_strcmp(args[i - 1], "<"))
+    if(!ft_strcmp(args[i], "<") && ft_strcmp(args[i + 1], "<"))
     {
-      if(!args[i + 1])
-        throw_error("syntax error near unexpected token `newline'");
-      else
+      if(i == 0 || (i > 0 && ft_strcmp(args[i - 1], "<")))
       {
-        printf("======> %s ---- %s\n", args[i], args[i + 1]);
-        free(in_file);
-        in_file = ft_strdup(args[i + 1]);
-        // in_file = args[i + 1];
+        if(!args[i + 1])
+          return (throw_error("syntax error near unexpected token `newline'", all), NULL);
+        else
+        {
+          free(in_file);
+          in_file = ft_strdup(args[i + 1]);
+        }
       }
     }
     i++;
@@ -26,7 +27,7 @@ char *get_input_redirection_file(char **args)
   return in_file;
 }
 
-char *get_output_redirection_file(char **args)
+char *get_output_redirection_file(char **args, t_all *all)
 {
   int i;
   int fd;
@@ -38,8 +39,12 @@ char *get_output_redirection_file(char **args)
   {
     if(!ft_strcmp(args[i], ">"))
     {
+      // printf("search for redirection\n");
       if(!args[i + 1])
-        throw_error("syntax error near unexpected token `newline'");
+      {
+        printf("******\n");
+        return (throw_error("syntax error near unexpected token `newline'", all), NULL);
+      }
       else
       {
         if(!ft_strcmp(args[i + 1], ">"))
@@ -55,7 +60,7 @@ char *get_output_redirection_file(char **args)
   return out_file;
 }
 
-char *get_append_to_file(char **args)
+char *get_append_to_file(char **args, t_all *all)
 {
   int i;
   int fd;
@@ -69,7 +74,7 @@ char *get_append_to_file(char **args)
     {
       i++;
       if(!args[i + 1])
-        throw_error("syntax error near unexpected token `newline'");
+        return (throw_error("syntax error near unexpected token `newline'", all), NULL);
       else
       {
         free(file);
@@ -83,3 +88,6 @@ char *get_append_to_file(char **args)
   }
   return file;
 }
+
+
+

@@ -19,14 +19,13 @@ void	mirroring_env_and_exp(t_all *all)
 
 	env = all->env;
 	exp = all->exp;
-			
-
 	while (env != NULL && exp != NULL)
 	{
-		if (match_word(env->variable, exp->variable) & !match_word(env->value, exp->value))
-			{
-				exp->value = env->value;
-			}
+		if (match_word(env->variable, exp->variable) & !match_word(env->value,
+				exp->value))
+		{
+			exp->value = env->value;
+		}
 		exp = exp->next;
 		env = env->next;
 	}
@@ -84,19 +83,35 @@ char	*get_home_wd(t_all *all)
 	}
 	return (NULL);
 }
+void cd_error_exit(t_all *all)
+{
+	ft_write("minishell: ", 2);
+	ft_write(strerror(errno), 2);
+	ft_write("\n", 1);
+	all->exit_status = 1;
+	return ;
+
+}
 void	change_dir(t_all *all, char *new_dir)
 {
 	char buff[1024];
+	char *path;
+	DIR *dir;
+
 	if (new_dir == NULL)
 		new_dir = get_home_wd(all);
+	dir = opendir(new_dir);
+	if (dir == NULL)
+	{
+		if (errno == ENOENT || errno == ENOTDIR)
+			cd_error_exit(all);
+		return ;
+	}
+	if (all->cmd->pipe)
+		return ;
 	if (chdir(new_dir) < 0)
 	{
-		ft_write("cd: ", 2);
-		ft_write(new_dir, 2);
-		ft_write(": ", 2);
-		ft_write(strerror(errno), 2);
-		ft_write("\n", 1);
-
+		cd_error_exit(all);
 		return ;
 	}
 	add_to_env(all, getcwd(buff, 1024));

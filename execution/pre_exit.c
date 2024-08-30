@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-void free_env_list(t_all *all)
+void	free_env_list(t_all *all)
 {
 	t_env	*tmp;
 
@@ -26,7 +26,7 @@ void free_env_list(t_all *all)
 	}
 }
 
-void free_exp_list(t_all *all)
+void	free_exp_list(t_all *all)
 {
 	t_exp	*tmp;
 
@@ -34,6 +34,8 @@ void free_exp_list(t_all *all)
 	{
 		tmp = all->exp;
 		all->exp = all->exp->next;
+		free(tmp->value);
+		free(tmp->variable);
 		free(tmp);
 	}
 }
@@ -46,15 +48,24 @@ void	env_exp_lists_clear(t_all *all)
 		free_exp_list(all);
 	ft_lstclear(&all->cmd);
 }
+void	free_vars(t_all *all)
+{
+	free(all->_vars->pids);
+}
 void	exit_way(t_all *all)
 {
-    env_exp_lists_clear(all);
-		free(all);
-    exit(1);
+	int cause_exit;
+
+	env_exp_lists_clear(all);
+	free_vars(all);
+	free(all);
+	if (errno == 22)
+		exit(127);
+	ft_write(strerror(errno), 2);
+	write(2, "\n", 1);
+	exit(1);
 }
 void	ft_error(t_all *all)
 {
-	ft_write(strerror(errno), 2);
-	write(2, "\n", 1);
 	exit_way(all);
 }

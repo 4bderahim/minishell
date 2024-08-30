@@ -33,6 +33,21 @@ int	check_(char *s, int index)
 	}
 	return (1);
 }
+int is_empty(char *s, int index)
+{
+	int i;
+
+	i = 0;
+	while (i < index)
+	{
+		if (s[i] != '\t' && s[i] != '\n' 
+			&& s[i] != ' ' && s[i] != '\r' && s[i] != '\v' && s[i] != '\f')
+			return (0);
+		i++;
+	}
+	return (1);
+	
+}
 int	check_before_env(char *s)
 {
 	int	i;
@@ -44,7 +59,7 @@ int	check_before_env(char *s)
 	{
 		if (s[i] == '=')
 		{
-			if (!check_(s, i))
+			if (is_empty(s, i) || !check_(s, i))
 				return (0);
 			return (1);
 		}
@@ -52,7 +67,7 @@ int	check_before_env(char *s)
 	}
 	if (!check_(s, i))
 		return (0);
-	return (-1); // if we should add an (export var) to the env or not;
+	return (-1);
 }
 void	add_it_to_env(t_all *all, char *new, t_exp *new_exp)
 {
@@ -60,20 +75,24 @@ void	add_it_to_env(t_all *all, char *new, t_exp *new_exp)
 
 	new_env = env_new(new);
 	if (new_env == NULL)
-		{
-            free(new);
-            ft_error(all);
-        }
-	//new_exp = exp_new(new);
-    free(new);
+	{
+		free(new);
+		ft_error(all);
+	}
+	free(new);
 	env_addback(all->env, new_env);
 	exp_addback(all->exp, new_exp);
+	// free(new_exp->value);
+	// free(new_exp->variable);
+	// free(new_exp);
+
 }
 void	identifier_error(char *indentifer)
 {
-	ft_write("export: ", 2);
-	ft_write(indentifer, 2);
-	ft_write(": not a valid identifier\n", 2);
+	// ft_write("export: ", 2);
+	// ft_write(indentifer, 2);
+	
+	
 }
 
 void	parse_indetifier(t_all *all, char *str)
@@ -86,28 +105,30 @@ void	parse_indetifier(t_all *all, char *str)
 	i = 0;
 	tmp_str = ft_strdup(str);
 	ret = check_before_env(str);
-
 	if (ret == 0)
 	{
-		identifier_error(str);
+		// free(tmp_str);
+		ft_write("minishell: not a valid identifier\n", 2);
+		all->exit_status = 1;
 		return ;
 	}
 	last = exp_new(str);
 	if (ret == -1)
 	{
 		if (unset_exp(all, last, ret))
-			{
-				free(last);
-                free(tmp_str);// check ...
-				return ;
-			}
-		exp_addback(all->exp, last); //t_exp    *head, t_exp    *new)
+		{
+			free(last);
+			free(tmp_str); // check ...
+			return ;
+		}
+		//free(tmp_str);
+		exp_addback(all->exp, last); 
 		return ;
 	}
 	if (unset_exp(all, last, ret))
-			{
-                free(tmp_str);// check ...
-				return ;
-			}
+	{
+		free(tmp_str); // check ...
+		return ;
+	}
 	add_it_to_env(all, tmp_str, last);
 }
