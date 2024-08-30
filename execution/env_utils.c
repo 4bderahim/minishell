@@ -58,6 +58,7 @@ void	env_addback(t_env *head, t_env *new)
 	tmp = env_getlast(head);
 	tmp->next = new;
 	new->prev = tmp;
+	printf("%s<", new->variable);
 }
 
 t_env	*create_env_list(char **envp)

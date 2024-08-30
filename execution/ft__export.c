@@ -53,7 +53,7 @@ int	check_before_env(char *s)
 	int	i;
 
 	i = 0;
-	if ((s[i] >= '0' && s[i] <= '9') || s[i] == '=') //  also check if empty
+	if ((s[i] >= '0' && s[i] <= '9') || s[i] == '=')
 		return (0);
 	while (s[i])
 	{
@@ -73,6 +73,7 @@ void	add_it_to_env(t_all *all, char *new, t_exp *new_exp)
 {
 	t_env	*new_env;
 
+	printf("\t\t\t###\n\n");
 	new_env = env_new(new);
 	if (new_env == NULL)
 	{

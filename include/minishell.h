@@ -152,6 +152,7 @@ char *handle_variables(char *str, t_env *env, size_t length, t_all *all);
 
 
 // ----------------------------------------------
+t_exp   *exp_getlast(t_exp *exp);
 void    *shell_calloc(size_t size , int count);
 void    ft_error(t_all *all);
 void    mirroring_env_and_exp(t_all *all);

@@ -1,7 +1,7 @@
 CC = cc
-CFLAGS = #-fsanitize=address -g #-Wall -Wextra -Werror
-XFLAGS = #-I ~/.brew/opt/readline/include
-X_FLAGS = #-L ~/.brew/Cellar/readline/8.2.13/lib
+CFLAGS = -fsanitize=address -g #-Wall -Wextra -Werror
+XFLAGS = -I ~/.brew/opt/readline/include
+X_FLAGS = -L ~/.brew/Cellar/readline/8.2.13/lib
 
 HEADER = -I ./include/
 

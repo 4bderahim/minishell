@@ -42,7 +42,8 @@ void	executing_commands(t_all *all, int *pipe_sides, char **envpp)
 	}
 	if (execve(all->cmd->full_path, all->cmd->args, envpp) == -1)
 		ft_write(strerror(errno), 2);
-	if (errno == 13)
+	printf("%d]n", errno);
+	if (errno == 13 || errno == 2)
 		exit(127);
 	exit(1);
 }
