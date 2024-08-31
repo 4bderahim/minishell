@@ -13,7 +13,7 @@ PARSING_SRCS = ./parsing/main.c ./parsing/ft_libc1.c ./parsing/ft_split.c \
 								./parsing/executables.c ./parsing/ft_itoa.c
 PARSING_OBJS = ${PARSING_SRCS:.c=.o}
 
-EXEC_SRCS = ./execution/execute_piped_ins.c ./execution/lst_utils.c ./execution/redirs_heredoc.c  ./execution/env_utils.c ./execution/ft_chdir.c ./execution/exec.c  ./execution/pre_exit.c ./execution/execute_builtins.c ./execution/unset_vars.c \
+EXEC_SRCS = ./execution/unset_funcs.c ./execution/execute_piped_ins.c ./execution/lst_utils.c ./execution/redirs_heredoc.c  ./execution/env_utils.c ./execution/ft_chdir.c ./execution/exec.c  ./execution/pre_exit.c ./execution/execute_builtins.c ./execution/unset_vars.c \
  						./execution/export_list.c  ./execution/ft_heredoc.c ./execution/utils.c \
 						./execution/ft__export.c 
 EXEC_RD = ./exec/signals_utils.o 
