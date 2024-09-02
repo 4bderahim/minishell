@@ -1,10 +1,11 @@
 #include <minishell.h>
 
-static char **get_all_paths(char *cmd)
+static char **get_all_paths(char *cmd, t_env *env)
 {
   char **all_paths;
-  char *path = ft_strdup(getenv("PATH"));
+  char *path; 
   
+  path = get_var_value(ft_strdup("PATH"), env);
   all_paths = ft_split(path, ':');
   if(!all_paths)
     return NULL;
@@ -41,9 +42,7 @@ char *isolate_cmd_from_path(char *cmd)
   while(path[i + 1] != NULL)
     i++;
   command = ft_strdup(path[i]);
-  // free(cmd);
-  // cmd = NULL;
-  ft_free(path);
+  ft_free(path, i + 1);
   return command;
 }
 
@@ -58,22 +57,69 @@ bool correct_path(char *path, char *cmd, bool is_path)
   return true;
 }
 
-char  *get_path(char *cmd)
+int get_arr_len(char **arr)
+{
+  int i;
+
+  i = 0;
+  while(arr[i])
+    i++;
+  return i;
+}
+
+char *search_at_curr_dir(char *cmd)
+{
+  int i;
+  char cwd[256];
+  char *path;
+
+  i = 0;
+  path = NULL;
+  getcwd(cwd, sizeof(cwd));
+  path = ft_strjoin(ft_strjoin(ft_strdup(cwd), "/"), cmd);
+  if(access(path, X_OK) == 0)
+    return path;
+  free(path);
+  path = NULL;
+  return NULL;
+}
+
+char *get_right_path(char **all_paths, char *cmd, char *line, bool is_path)
 {
   int i;
   char *path;
-  char *command;
+  char *curr_path;
+
+  i = 0;
+  path = NULL;
+  while (all_paths[i])
+  {
+    curr_path = ft_strjoin(ft_strdup(all_paths[i]), "/");
+    path = ft_strjoin(curr_path, line);
+    if(access(path, X_OK) == 0)
+    {
+      if (correct_path(path, cmd, is_path))
+        return path;
+    }
+    free(path);
+    path = NULL;
+    i++;
+  }
+  return path;
+}
+
+char  *get_path(char *cmd, t_env *env)
+{
+  char *path;
   char **all_paths;
   char *line;
   bool is_path;
 
-  i = 0;
   is_path = false;
-  command = NULL;
   path = NULL;
   if(!cmd)
     return NULL;
-  all_paths = get_all_paths(cmd);
+  all_paths = get_all_paths(cmd, env);
   if(cmd[0] && cmd[0] == SLASH && cmd[ft_strlen(cmd) - 1])
   {
     line = isolate_cmd_from_path(cmd);
@@ -81,28 +127,11 @@ char  *get_path(char *cmd)
   }
   else
     line = cmd;
-  while (all_paths[i])
-  {
-    char *curr_path = ft_strdup(all_paths[i]);
-    command = ft_strjoin(curr_path, "/");
-    path = ft_strjoin(command, line);
-    // free(command);
-    // command = NULL;
-    if(access(path, X_OK) == 0)
-    {
-      ft_free(all_paths);
-      if (correct_path(path, cmd, is_path))
-        return path;
-      return (free(path), NULL);
-      // return path;
-    }
-    free(path);
-    path = NULL;
-    i++;
-  }
-  ft_free(all_paths);
-  // printf("should return NULL\n");
-  return NULL;
+  path = get_right_path(all_paths, cmd, line, is_path);
+  ft_free(all_paths, get_arr_len(all_paths));
+  if(!path)
+    path = search_at_curr_dir(cmd);
+  return path;
 }
 
 char **get_herdoc_delimiter(char **args, t_all *all)
@@ -120,11 +149,11 @@ char **get_herdoc_delimiter(char **args, t_all *all)
   len = 0;
   while(args[i])
   {
-    if(!ft_strcmp(args[i], "<") && !ft_strcmp(args[i + 1], "<")) // and [i+1] != '\0'
+    if(!ft_strcmp(args[i], "<") && !ft_strcmp(args[i + 1], "<"))
     {
       i++;
       if(!args[i + 1])
-        return (throw_error("syntax error near unexpected token `newline'", all), NULL);
+        return (throw_error("syntax error near unexpected token", all, 258), NULL);
       else
         delimiters[len++] = ft_strdup(args[i + 1]);
     }

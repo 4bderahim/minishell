@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   env_utils.c                                             :+:      :+:    :+:   */
+/*   env_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ael-krid <ael-krid@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -53,12 +53,9 @@ void	env_addback(t_env *head, t_env *new)
 {
 	t_env	*tmp;
 
-	if (head == NULL)
-		head = new;
 	tmp = env_getlast(head);
 	tmp->next = new;
 	new->prev = tmp;
-	printf("%s<", new->variable);
 }
 
 t_env	*create_env_list(char **envp)

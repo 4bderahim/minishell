@@ -32,6 +32,7 @@ void	print_exp_list(t_all *all, int pipe[2])
 		i++;
 	}
 }
+
 void	print_env_list(t_all *all)
 {
 	t_env	*tmp;

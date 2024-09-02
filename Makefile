@@ -1,5 +1,5 @@
 CC = cc
-CFLAGS = -fsanitize=address -g #-Wall -Wextra -Werror
+CFLAGS = #-fsanitize=address -g #-Wall -Wextra -Werror
 XFLAGS = -I ~/.brew/opt/readline/include
 X_FLAGS = -L ~/.brew/Cellar/readline/8.2.13/lib
 
@@ -10,10 +10,10 @@ NAME = minishell
 PARSING_SRCS = ./parsing/main.c ./parsing/ft_libc1.c ./parsing/ft_split.c \
 								./parsing/ft_list.c ./parsing/lexer.c ./parsing/utils_1.c \
 								./parsing/cmd_infos.c ./parsing/variables.c ./parsing/cmd_infos_2.c \
-								./parsing/executables.c ./parsing/ft_itoa.c
+								./parsing/executables.c ./parsing/ft_itoa.c ./parsing/temp.c
 PARSING_OBJS = ${PARSING_SRCS:.c=.o}
 
-EXEC_SRCS = ./execution/unset_funcs.c ./execution/execute_piped_ins.c ./execution/lst_utils.c ./execution/redirs_heredoc.c  ./execution/env_utils.c ./execution/ft_chdir.c ./execution/exec.c  ./execution/pre_exit.c ./execution/execute_builtins.c ./execution/unset_vars.c \
+EXEC_SRCS = ./execution/unset_funcs__.c ./execution/ft_heredoc__.c ./execution/export_prs.c ./execution/lists_utils.c ./execution/exec_cmd.c ./execution/unset_funcs.c ./execution/execute_piped_ins.c ./execution/lst_utils.c ./execution/redirs_heredoc.c  ./execution/env_utils.c ./execution/ft_chdir.c ./execution/exec.c  ./execution/pre_exit.c ./execution/execute_builtins.c ./execution/unset_vars.c \
  						./execution/export_list.c  ./execution/ft_heredoc.c ./execution/utils.c \
 						./execution/ft__export.c 
 EXEC_RD = ./exec/signals_utils.o 

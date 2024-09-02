@@ -46,14 +46,10 @@ typedef struct s_command_line {
   int   pipe; // 1 if this command pipes to next, 0 otherwise
   struct s_command_line *next; // Pointer to next command in pipeline
   bool cmd_not_found;
+  char *varibale;
+  bool is_red_to_var;
 } t_cmd;
 
-// typedef struct s_exec
-// {
-//   int i;
-//   int		pipe_sides[2];
-  
-// }
 typedef struct s_lexer
 {
   int i;
@@ -71,6 +67,7 @@ typedef struct s_vars
   char **envpp;
 	pid_t	*pids;
 } t_vars;
+
 typedef struct s_env{
   char *variable;
   char *value;
@@ -110,48 +107,52 @@ int ft_strchr_pro(char *str, char c1, char c2, bool inside_quotes);
 int ft_isspace(char c);
 char *ft_strndup(char *str, size_t n);
 char	*ft_itoa(int n);
-
 // ft_list.c
 t_cmd	*ft_lstnew(t_all **all, char **args, int args_nbr, int pipe);
 void	ft_lstadd_back(t_cmd **lst, t_cmd *new);
 // void  ft_init(t_shell *shell);
 void    ft_lstclear(t_cmd **lst);
-
 // ft_lexer.c
 int ft_lexer(char *command, t_all **all);
 bool is_symbol(char c);
 void skip_str_inside_quote(char *cmd, int *i, char c);
 char *fix_cmd(char *cmd, t_all *all);
-
+bool no_herdoc_delemiter(char *cmd, int i);
 // utils_1.c
-void throw_error(char *msg, t_all *all);
+void throw_error(char *msg, t_all *all, int exit_status);
 int find_pipe_index(char *str);
 size_t args_counter(char *str, int len);
-void ft_free(char **args);
+void ft_free(char **args, int len);
 void print_list(t_cmd *head);
 char *find_and_remove(char *str, char c);
 int skip_reds(char *str, int *i, char c, t_all *all);
 size_t get_vars_length(char *str);
-
+char *get_var_value(char *str, t_env *env);
 // cmd_infos.c
-char *get_path(char *cmd);
+char *get_path(char *cmd, t_env *env);
 char *get_input_redirection_file(char **args, t_all *all);
 char *get_output_redirection_file(char **args, t_all *all);
 char **get_herdoc_delimiter(char **args, t_all *all);
-
+int get_arr_len(char **arr);
 // char *get_herdoc_delimiter(char **args);
 // char *get_append_from_file(char **args);
 char *get_append_to_file(char **args, t_all *all);
 // char *handle_variables(char *str, t_env *env, size_t length);
-
-
 // executables.c
 char *get_executable(char *cmd);
-
 char *handle_variables(char *str, t_env *env, size_t length, t_all *all);
-
+void skip_spaces(char *cmd, int *i);
+char *fix_file_name(char *p_file);
 
 // ----------------------------------------------
+void    cd_error_exit(t_all *all);
+void    unset_env_list(t_all *all, char *var);
+void    heredoc_(t_cmd *doc, t_all *all);
+void    add_it_to_env(t_all *all, char *new, t_exp *new_exp);
+int     check_before_env(char *s);
+void    parse_indetifier(t_all *all, char *str);
+int     __unset_exp(t_all *all , t_exp	*last, int		ret, char	*tmp_str);
+void    executing_commands(t_all *all, int *pipe_sides, char **envpp);
 void    unset_exp_list(t_all *all, char *var);
 void    mirroring_exp_and_env(t_all *all);
 t_exp   *exp_getlast(t_exp *exp);
@@ -176,14 +177,14 @@ int     spliter_index(char *str);
 t_exp   *exp_new(char *new_line);// not used
 void    exp_addback(t_exp    *head, t_exp    *new);
 t_exp   *set_export_list(t_all *all);
-void    identifier_error(char *indentifer);
+// void    identifier_error(char *indentifer);
 void    ft_write(char *str, int fd);
 void    change_dir(t_all *all, char *new_dir);
 void    ft_pwd(t_all *all);
 void    parse_indetifier(t_all *all, char *str);
 void    unset_env(t_all *all);
 int    unset_exp(t_all *all, t_exp *exp_, int ret);
-void    env_addback(t_env *head, t_env *);
+void    env_addback(t_env *head, t_env *new);
 char    *ft_strjoin(char *s1, char *s2);
 t_env   *env_new(char *new_line);
 t_env   *env_getlast(t_env *env);
@@ -191,7 +192,6 @@ t_env   *create_env_list(char **env);
 size_t	ft_strlen(char *s);
 void    ft_echo(char **str, int fd);
 char    *heredoc(char *heredoc_str, int fd, t_all *all);
-void execution(t_all **all, char *envp[]);
-int match_word(char *neadle, char *str);
-
+void    execution(t_all **all, char *envp[]);
+int     match_word(char *neadle, char *str);
 #endif

@@ -2,10 +2,9 @@
 
 size_t ft_strlen(char *str)
 {
-  int i;
+  size_t i;
 
   i = 0;
-	// printf("here\n");
   if(!str)
     return (i);
   while (str[i])
@@ -20,11 +19,7 @@ char *ft_strdup(char *str)
 
   i = 0;
   if(!str)  
-	{
-		// printf("null at strdup\n");
     return NULL;
-	}
-	// printf("strdup: %s\n", str);
   buf = malloc(sizeof(char) * (ft_strlen(str) + 1));
   while(str[i])
   {
@@ -188,7 +183,6 @@ int ft_strchr_pro(char *str, char c1, char c2, bool inside_quotes)
 	i = 0;
 	if(!str)
 		return -1;
-	// printf("strchr pro max: %s\n", str);
 	while(str[i] && str[i] != c1 && str[i] != c2)
 	{
 		i++;

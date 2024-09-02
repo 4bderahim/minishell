@@ -14,7 +14,7 @@ char *get_input_redirection_file(char **args, t_all *all)
       if(i == 0 || (i > 0 && ft_strcmp(args[i - 1], "<")))
       {
         if(!args[i + 1])
-          return (throw_error("syntax error near unexpected token `newline'", all), NULL);
+          return (throw_error("syntax error near unexpected token", all, 258), NULL);
         else
         {
           free(in_file);
@@ -26,6 +26,17 @@ char *get_input_redirection_file(char **args, t_all *all)
   }
   return in_file;
 }
+
+// bool is_valid_filename(char **args, char *filename)
+// {
+//   int i;
+
+//   i = 0;
+//   // printf("%s%s%s\n", CYAN, args[0], NC);
+//   if(!fix_file_name(filename) && args[0] && !ft_strcmp(args[0]))
+//     return false;
+//   return true;
+// }
 
 char *get_output_redirection_file(char **args, t_all *all)
 {
@@ -39,18 +50,17 @@ char *get_output_redirection_file(char **args, t_all *all)
   {
     if(!ft_strcmp(args[i], ">"))
     {
-      // printf("search for redirection\n");
       if(!args[i + 1])
-      {
-        printf("******\n");
-        return (throw_error("syntax error near unexpected token `newline'", all), NULL);
-      }
+        return (throw_error("syntax error near unexpected token", all, 258), NULL);
       else
       {
         if(!ft_strcmp(args[i + 1], ">"))
           return NULL;
         free(out_file);
         out_file = ft_strdup(args[i + 1]);
+        printf("%s%s%s\n", RED, fix_file_name(out_file), NC);
+        // if(!is_valid_filename(args, out_file))
+        //   return throw_error("ambiguous redirect", all, 1), NULL;
         fd = open(out_file, O_CREAT | O_RDWR, 0777);
         close(fd);
       }
@@ -74,13 +84,12 @@ char *get_append_to_file(char **args, t_all *all)
     {
       i++;
       if(!args[i + 1])
-        return (throw_error("syntax error near unexpected token `newline'", all), NULL);
+        return (throw_error("syntax error near unexpected token", all, 258), NULL);
       else
       {
         free(file);
         file = ft_strdup(args[i + 1]);
         fd = open(file, O_CREAT | O_RDWR | O_APPEND, 0777);
-        // protect file!
         close(fd);
       }
     }

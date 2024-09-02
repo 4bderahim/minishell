@@ -1,11 +1,16 @@
 #include "minishell.h"
 
-void throw_error(char *msg, t_all *all)
+void throw_error(char *msg, t_all *all, int nbr)
 {
   printf("%sError: %s%s\n", RED, msg, NC);
-  
-  all->error = 1;
-  // exit(1);
+  // int i;
+
+  // i = 0;
+  // write(2, "Error: ", 7);
+  // while(msg[i])
+  //   write(2, &msg[i], 1);
+  all->exit_status = nbr;
+  all->error = true;
 }
 
 int find_pipe_index(char *str)
@@ -71,23 +76,19 @@ size_t args_counter(char *str, int len)
   return words;
 }
 
-void ft_free(char **args)
+void ft_free(char **args, int len)
 {
   int i;
 
   i = 0;
   // int j = 0;
-  while(args[i])
+  if(!args)
+    return;
+  while(i < len)
   {
-    // printf("%s%s%s\n", YELLOW, args[i], NC);
     if(args[i] != NULL)
       free(args[i]);
     i++;
-  }
-  if(args)
-  {
-    free(args);
-    args = NULL;
   }
   free(args);
   args = NULL;
@@ -113,10 +114,11 @@ void print_list(t_cmd *head)
       i++;
     }
     printf("%s %s %s", CYAN, head->full_path, NC);
-    printf("%s %s %s", RED, head->in_file, NC);
-    printf("%s %s %s", GREEN, head->out_file, NC);
-    printf("%s %s %s", RED, head->append_file, NC);
-    printf("%s %d %s", GREEN, head->pipe, NC);
+    printf("%s %d %s", RED, head->cmd_not_found, NC);
+    // printf("%s %s %s", RED, head->in_file, NC);
+    // printf("%s %s %s", GREEN, head->out_file, NC);
+    // printf("%s %s %s", RED, head->append_file, NC);
+    // printf("%s %d %s", GREEN, head->pipe, NC);
     head = head->next;
   }
   printf("\n-----------------------------\n");
@@ -154,7 +156,7 @@ int skip_reds(char *str, int *i, char c, t_all *all)
     *i += 1;
     if(counter > 2)
     {
-      throw_error("parse error", all);
+      throw_error("syntax error near unexpected token", all, 258);
       return 0;
     }
   }
@@ -162,7 +164,7 @@ int skip_reds(char *str, int *i, char c, t_all *all)
     *i += 1;
   if(*i < len && is_symbol(str[*i]))
   {
-    throw_error("parse error", all);
+    throw_error("syntax error near unexpected token", all, 258);
     return 0;
   }
   return 1;
@@ -179,17 +181,18 @@ size_t get_vars_length(char *str)
   str_len = ft_strlen(str);
   if(!str)
     return length;
-  while(str[i])
+  while(i < str_len)
   {
-    while(str[i] && ft_isspace(str[i]))
+    while(i < str_len && ft_isspace(str[i]))
       i++;
-    // if(str[i] && str[i] == VAR_SIGN && str[i - 1] != BACK_SLASH)
-    // printf("outside the func\n");
-    if(str[i] && str[i] == VAR_SIGN && (i == 0 || (i > 0 && str[i - 1] != BACK_SLASH)))
+    if(i < str_len && str[i] == SINGLE_QUOTE)
     {
-      // printf("inside the func\n");
-      // if(i > 0 && str[i - 1] != BACK_SLASH)
-      while(str[i] && str[i] != DOUBLE_QUOTE && str[i] != PIPE)
+      i++;
+      skip_str_inside_quote(str, &i, str[i - 1]);
+    }
+    if(i < str_len && str[i] == VAR_SIGN && (i == 0 || (i > 0 && str[i - 1] != BACK_SLASH)))
+    {
+      while(i < str_len && str[i] != DOUBLE_QUOTE && str[i] != PIPE)
       {
         i++;
         length++;
@@ -198,7 +201,6 @@ size_t get_vars_length(char *str)
     }
     i++;
   }
-  // printf("length should returned : %zu\n", length);
   return length;
 }
 
@@ -227,24 +229,8 @@ char *find_variable(char *str)
     }
     i++;
   }
-  // printf("%sall vars: %s%s\n", YELLOW, vars, NC);
   return vars;
 }
-
-// char *get_variable(char *str)
-// {
-//   size_t i;
-//   char var;
-
-//   i = 0;
-//   while()
-//   {
-
-//   }
-//   return  var
-// }
-
-
 
 char *find_and_remove(char *str, char c)
 {
@@ -259,7 +245,6 @@ char *find_and_remove(char *str, char c)
   len = ft_strlen(str) - nums_of_chars(str, c) + 1;
   if(!str)
     return NULL;
-  // printf("%s --------> %s%s\n", RED, str, NC);
   res = (char *)malloc(sizeof(char) * len);
   while(str[i])
   {
@@ -273,6 +258,5 @@ char *find_and_remove(char *str, char c)
   res[j] = '\0';
   free(str);
   str = NULL;
-  // printf("after fixing: %s\n", res);
   return res;
 }

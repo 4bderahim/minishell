@@ -23,11 +23,12 @@ void	handle_export(t_all *all)
 		i++;
 	}
 }
+
 int	sh_atoi(char *s)
 {
 	int	res;
 	int	i;
-	int sign;
+	int	sign;
 
 	sign = 1;
 	i = 0;
@@ -38,7 +39,7 @@ int	sh_atoi(char *s)
 		{
 			if (!(s[i + 1] >= '0' && s[i + 1] <= '9'))
 				return (-1);
-				sign *= -1;
+			sign *= -1;
 			i++;
 		}
 		if (!(s[i] >= '0' && s[i] <= '9'))
@@ -46,43 +47,44 @@ int	sh_atoi(char *s)
 		res = (res * 10) + (s[i] - 48);
 		i++;
 	}
-	return (res*sign);
+	return (res * sign);
 }
-void free_and_exit(t_all *all, int exit_)
+
+void	free_and_exit(t_all *all, int exit_)
 {
 	env_exp_lists_clear(all);
-	
 	exit(exit_);
 }
+
 void	handle_exit(t_all *all)
 {
-	int exit_num;
-	int exit_;
+	int	exit_num;
+	int	exit_;
 
 	ft_write("exit\n", 2);
 	if (all->cmd->args[1] != NULL)
+	{
+		exit_num = sh_atoi(all->cmd->args[1]);
+		if (exit_num == -1 && (all->cmd->args[1][0] != '-'
+			&& all->cmd->args[1][0] != '1'))
 		{
-			
-			exit_num = sh_atoi(all->cmd->args[1]);
-			if (exit_num == -1 && (all->cmd->args[1][0] != '-' &&  all->cmd->args[1][0] != '1'))
-			{
-				ft_write("minishell: numeric argument required\n", 2);
-				free_and_exit(all, 255);
-				env_exp_lists_clear(all);
-				// free all
-			}
-			if (all->cmd->args[2])
-			{
-				ft_write("minishell: too many arguments\n", 2);
-				return ;
-			}
-			free_and_exit(all, exit_num);
+			ft_write("minishell: numeric argument required\n", 2);
+			free_and_exit(all, 255);
+			env_exp_lists_clear(all);
 		}
+		if (all->cmd->args[2])
+		{
+			ft_write("minishell: too many arguments\n", 2);
+			return ;
+		}
+		free_and_exit(all, exit_num);
+	}
 	if (all->cmd->pipe)
 		return ;
 	exit_ = all->exit_status;
 	free_and_exit(all, exit_);
 }
+
 int	exec_built_ins(t_all *all)
 {
 	int	exec;
