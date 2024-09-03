@@ -27,7 +27,7 @@ int	n_flaged(char *str)
 {
 	if (str == NULL)
 		return (0);
-	if ((*str != '-' && *(str + 1) != 0) || *str == 0)
+	if (*str != '-' || (*str != '-' && *(str + 1) != 0) || *str == 0)
 		return (0);
 	if (*str == '-' && *(str + 1) != 'n')
 		return (0);
@@ -43,7 +43,6 @@ int	n_flaged(char *str)
 
 void	echo_to_file(char **str, int i, int fd)
 {
-	printf("[%s]", str[i]);
 	while (str[i])
 	{
 		ft_write(str[i], fd);
@@ -63,13 +62,13 @@ void	ft_echo(char **str, int fd)
 	i = 0;
 	index_to_txt = 0;
 	while (n_flaged(str[index_to_txt]))
+	{
 		index_to_txt++;
+	}
 	if (index_to_txt > 0)
 	{
 		if (str[1] == NULL)
-		{
 			return ;
-		}
 		flag = 1;
 		i++;
 	}

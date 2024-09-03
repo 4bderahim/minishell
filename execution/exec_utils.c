@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exec_cmd.c                                         :+:      :+:    :+:   */
+/*   exec_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mben-jad <mben-jad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,26 +12,22 @@
 
 #include "minishell.h"
 
-void	executing_commands(t_all *all, int *pipe_sides, char **envpp)
+void	handle_sigs(int sig)
 {
-	redirections_set(all);
-	heredoc_pipe(all);
-	if (exec_built_ins(all))
-		exit(0);
-	exec_piped_built_ins(all, pipe_sides);
-	if (all->cmd->cmd_not_found)
-	{
-		ft_write("minishell: command not found\n", 2);
-		ft_error(all);
-	}
-	if (match_word(all->cmd->cmd, "exit"))
-	{
-		handle_exit(all);
-		exit(0);
-	}
-	if (execve(all->cmd->full_path, all->cmd->args, envpp) == -1)
-		ft_write(strerror(errno), 2);
-	if (errno == 13 || errno == 2)
-		exit(127);
-	exit(1);
+	if (sig == SIGINT)
+		printf("\n");
+	if (sig == SIGQUIT)
+		printf("QUIT 3:\n");
+}
+
+void	ignore_sigs(void)
+{
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
+}
+
+void	exiting_execution_loop(t_vars *vars, t_all *all)
+{
+	wait_ps(vars->pids, all);
+	setup_signal_handlers();
 }

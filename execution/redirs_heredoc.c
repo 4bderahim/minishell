@@ -83,7 +83,6 @@ void	heredoc_pipe(t_all *all)
 		redirections_set(all);
 		ft_write(all->cmd->heredoc_content, p[1]);
 		close(p[1]);
-		write(1, "\n", 1);
 		exit(1);
 	}
 	close(p[1]);

@@ -89,6 +89,7 @@ int start_shell(char *read, t_all **all, char **env)
     return 0;
   }
   (*all)->nums_of_cmds = count_commands((*all)->cmd);
+  (*all)->pipes_num = (*all)->nums_of_cmds-1;
   if(!(*all)->error)
     execution(all, env);
   free((*all)->_vars->pids);

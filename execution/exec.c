@@ -29,12 +29,10 @@ void	wait_ps(pid_t *pids, t_all *all)
 	}
 }
 
-void	handler(int sig)
+void	close_pipe_sides(int pipe_sides[2])
 {
-	if (sig == SIGINT)
-		printf("\n");
-	if (sig == SIGQUIT)
-		printf("QUIT 3:\n");
+	close(pipe_sides[1]);
+	close(pipe_sides[0]);
 }
 
 void	execution_loop(t_vars *vars, int i, t_all *all, t_cmd *cmd)
@@ -47,10 +45,11 @@ void	execution_loop(t_vars *vars, int i, t_all *all, t_cmd *cmd)
 	vars->pids[i] = fork();
 	if (vars->pids[i] < 0)
 		ft_error(all);
-	signal(SIGINT, handler);
-	signal(SIGQUIT, handler);
+	signal(SIGINT, handle_sigs);
+	signal(SIGQUIT, handle_sigs);
 	if (vars->pids[i] == 0)
 	{
+		close(pipe_sides[0]);
 		signal(SIGINT, SIG_DFL);
 		signal(SIGQUIT, SIG_DFL);
 		redirect_in_out_to_pipe(i, pipe_sides, &pr_fd, all);
@@ -61,8 +60,8 @@ void	execution_loop(t_vars *vars, int i, t_all *all, t_cmd *cmd)
 	pr_fd = dup(pipe_sides[0]);
 	if (pr_fd < 0)
 		ft_error(all);
-	close(pipe_sides[1]);
-	close(pipe_sides[0]);
+	vars->pr_fd = pr_fd;
+	close_pipe_sides(pipe_sides);
 }
 
 t_vars	*set_envp_pids(t_all *all, char **env)
@@ -91,22 +90,17 @@ void	execution(t_all **alll, char *envpp[])
 	i = 0;
 	cmd_ = all->cmd;
 	vars = set_envp_pids(all, envpp);
-	signal(SIGINT, SIG_IGN);
-	signal(SIGQUIT, SIG_IGN);
+	ignore_sigs();
 	heredoc_check(all);
-	if (exec_built_ins(all))
-	{
-		all->nums_of_cmds--;
-		all->cmd = all->cmd->next;
-	}
+	if (!all->pipes_num)
+		exec_built_ins(all);
 	while (i < all->nums_of_cmds)
 	{
 		execution_loop(vars, i, all, all->cmd);
 		i++;
 		all->cmd = all->cmd->next;
 	}
-	wait_ps(vars->pids, all);
-	setup_signal_handlers();
-	all = *alll;
-	all->cmd = cmd_;
+	exiting_execution_loop(vars, all);
+	close(all->_vars->pr_fd);
+	(*alll)->cmd = cmd_;
 }

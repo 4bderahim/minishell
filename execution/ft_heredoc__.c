@@ -51,12 +51,16 @@ char	*fill_full_str(char *full_str, char *input, t_all *all)
 	full_str = ft_strjoin(full_str, input);
 	if (full_str == NULL)
 		ft_error(all);
-	full_str = ft_strjoin(full_str, "\n");
+	if (get_vars_length(full_str) > 0)
+		full_str = ft_strjoin(handle_variables(full_str, all->env,
+					get_vars_length(full_str), all), "\n");
+	else
+		full_str = ft_strjoin(full_str, "\n");
 	free(input);
 	return (full_str);
 }
 
-char	*heredoc(char *heredoc_str, int fd, t_all *all)
+char	*heredoc(char *heredoc_str, t_all *all)
 {
 	char	*full_str;
 	char	*input;
@@ -93,7 +97,7 @@ void	heredoc_(t_cmd *doc, t_all *all)
 	while (doc->heredoc_delimiter[i])
 	{
 		here_tmp = ft_strdup("");
-		here_tmp = heredoc(doc->heredoc_delimiter[i], 1, all);
+		here_tmp = heredoc(doc->heredoc_delimiter[i], all);
 		last_hrdoc = ft_strlen(here_tmp);
 		doc->heredoc_content = ft_strjoin(doc->heredoc_content, here_tmp);
 		free(here_tmp);

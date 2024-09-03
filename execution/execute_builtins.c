@@ -24,65 +24,53 @@ void	handle_export(t_all *all)
 	}
 }
 
-int	sh_atoi(char *s)
-{
-	int	res;
-	int	i;
-	int	sign;
-
-	sign = 1;
-	i = 0;
-	res = 0;
-	while (s[i] != 0)
-	{
-		if (s[i] == '+' || s[i] == '-')
-		{
-			if (!(s[i + 1] >= '0' && s[i + 1] <= '9'))
-				return (-1);
-			sign *= -1;
-			i++;
-		}
-		if (!(s[i] >= '0' && s[i] <= '9'))
-			return (-1);
-		res = (res * 10) + (s[i] - 48);
-		i++;
-	}
-	return (res * sign);
-}
-
 void	free_and_exit(t_all *all, int exit_)
 {
 	env_exp_lists_clear(all);
 	exit(exit_);
 }
 
-void	handle_exit(t_all *all)
+int	check_exit_args(int exit_num, t_all *all)
+{
+	if (exit_num == -1 && (all->cmd->args[1][0] != '-'
+		|| all->cmd->args[1][1] != '1'))
+	{
+		ft_write("minishell: numeric argument required\n", 2);
+		all->exit_status = 255;
+	}
+	else
+		return (0);
+	if (all->pipes_num)
+		return (1);
+	free_and_exit(all, 255);
+	env_exp_lists_clear(all);
+	return (0);
+}
+
+int	handle_exit(t_all *all)
 {
 	int	exit_num;
 	int	exit_;
 
-	ft_write("exit\n", 2);
 	if (all->cmd->args[1] != NULL)
 	{
 		exit_num = sh_atoi(all->cmd->args[1]);
-		if (exit_num == -1 && (all->cmd->args[1][0] != '-'
-			&& all->cmd->args[1][0] != '1'))
-		{
-			ft_write("minishell: numeric argument required\n", 2);
-			free_and_exit(all, 255);
-			env_exp_lists_clear(all);
-		}
+		if (check_exit_args(exit_num, all))
+			return (1);
 		if (all->cmd->args[2])
 		{
 			ft_write("minishell: too many arguments\n", 2);
-			return ;
+			all->exit_status = 255;
+			return (1);
 		}
-		free_and_exit(all, exit_num);
+		if (!all->pipes_num)
+			free_and_exit(all, exit_num);
 	}
-	if (all->cmd->pipe)
-		return ;
+	if (all->pipes_num)
+		return (1);
 	exit_ = all->exit_status;
 	free_and_exit(all, exit_);
+	return (0);
 }
 
 int	exec_built_ins(t_all *all)
@@ -97,12 +85,12 @@ int	exec_built_ins(t_all *all)
 	}
 	if (match_word(all->cmd->cmd, "unset"))
 	{
-		if (all->cmd->args[1] != NULL)
+		if (!all->pipes_num && all->cmd->args[1] != NULL)
 			unset_env(all);
 		exec++;
 	}
-	if (match_word(all->cmd->cmd, "exit"))
-		handle_exit(all);
+	if (match_word(all->cmd->cmd, "exit") && handle_exit(all))
+		exec++;
 	if (match_word(all->cmd->cmd, "cd"))
 	{
 		change_dir(all, all->cmd->args[1]);

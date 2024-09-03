@@ -23,10 +23,13 @@ void	print_exp_list(t_all *all, int pipe[2])
 	{
 		ft_write("declare -x ", STDOUT_FILENO);
 		ft_write(tmp->variable, STDOUT_FILENO);
-		ft_write("=", STDOUT_FILENO);
-		ft_write("\"", STDOUT_FILENO);
+		if (tmp->value != NULL)
+			ft_write("=", STDOUT_FILENO);
+		if (tmp->value != NULL)
+			ft_write("\"", STDOUT_FILENO);
 		ft_write(tmp->value, STDOUT_FILENO);
-		ft_write("\"", STDOUT_FILENO);
+		if (tmp->value != NULL)
+			ft_write("\"", STDOUT_FILENO);
 		write(STDOUT_FILENO, "\n", STDOUT_FILENO);
 		tmp = tmp->next;
 		i++;
