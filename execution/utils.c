@@ -84,7 +84,7 @@ void	ft_pwd(t_all *all)
 
 	ret = getcwd(buff, 1024);
 	if (ret == NULL)
-		ft_error(all);
+		ft_error(all, 1);
 	ft_write(ret, STDOUT_FILENO);
 	ft_write("\n", STDOUT_FILENO);
 }

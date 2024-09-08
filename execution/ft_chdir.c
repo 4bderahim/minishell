@@ -3,42 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   ft_chdir.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ael-krid <ael-krid@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mben-jad <mben-jad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 14:54:34 by ael-krid          #+#    #+#             */
-/*   Updated: 2024/08/16 14:54:50 by ael-krid         ###   ########.fr       */
+/*   Updated: 2024/09/06 21:58:41 by mben-jad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// int find_exp_in_env()
-// {
-
-// }
-// void more_matching(t_all *all)
-// {
-// 	t_env	*env;
-// 	t_exp	*exp;
-// 	char	*prv;
-
-// 	env = all->env;
-// 	exp = all->exp;
-// 	while (env != NULL && exp != NULL)
-// 	{
-// 		printf("");
-// 		if (match_word(env->variable, exp->variable) & !match_word(env->value,
-// 				exp->value))
-// 		{
-// 			prv = exp->value;
-// 			exp->value = ft_strdup(env->value);
-// 			free(prv);
-// 		}
-// 		exp = exp->next;
-// 		env = env->next;
-// 	}
-
-// }
 void	mirroring_env_and_exp(t_all *all)
 {
 	t_env	*env;
@@ -49,7 +22,6 @@ void	mirroring_env_and_exp(t_all *all)
 	exp = all->exp;
 	while (env != NULL && exp != NULL)
 	{
-		printf("");
 		if (match_word(env->variable, exp->variable) & !match_word(env->value,
 				exp->value))
 		{
@@ -65,12 +37,17 @@ void	mirroring_env_and_exp(t_all *all)
 void	set_old_pwd(t_all *all, char *old_dir)
 {
 	t_env	*a;
+	char	*tmp_free;
 
 	a = all->env;
 	while (a != NULL)
 	{
 		if (match_word("OLDPWD", a->variable))
+		{
+			tmp_free = a->value;
 			a->value = ft_strdup(old_dir);
+			free(tmp_free);
+		}
 		a = a->next;
 	}
 }
@@ -78,23 +55,24 @@ void	set_old_pwd(t_all *all, char *old_dir)
 void	add_to_env(t_all *all, char *new_dir)
 {
 	t_env	*tmp;
-	t_env	*tmp2;
-	t_all	*al;
+	char	*tmp_free;
 
 	tmp = all->env;
 	while (tmp != NULL)
 	{
-		if (ft_strlen(tmp->variable) > 2 && tmp->variable[0] == 'P'
-			&& tmp->variable[1] == 'W' && tmp->variable[2] == 'D')
+		if (pwd_found(tmp))
 		{
 			if (tmp->next != NULL)
 			{
 				set_old_pwd(all, tmp->value);
+				tmp_free = tmp->value;
 				tmp->value = ft_strdup(new_dir);
+				free(tmp_free);
 				break ;
 			}
-			al->env->prev->next = NULL;
-			env_addback(al->env, env_new(new_dir));
+			unset_env_list(all, "PWD");
+			env_addback(all->env, env_new(ft_strjoin(ft_strdup("PWD="),
+						new_dir)));
 			break ;
 		}
 		tmp = tmp->next;
@@ -119,11 +97,14 @@ char	*get_home_wd(t_all *all)
 void	change_dir(t_all *all, char *new_dir)
 {
 	char	buff[1024];
-	char	*path;
 	DIR		*dir;
 
 	if (new_dir == NULL)
+	{
 		new_dir = get_home_wd(all);
+		if (!new_dir)
+			return (ft_write("minishell: cd: HOME not set\n", 2));
+	}
 	dir = opendir(new_dir);
 	if (dir == NULL)
 	{
@@ -131,12 +112,12 @@ void	change_dir(t_all *all, char *new_dir)
 			cd_error_exit(all);
 		return ;
 	}
+	close(dir->__dd_fd);
+	free(dir->__dd_buf);
+	free(dir);
 	if (all->cmd->pipe)
 		return ;
 	if (chdir(new_dir) < 0)
-	{
-		cd_error_exit(all);
-		return ;
-	}
+		return (cd_error_exit(all));
 	add_to_env(all, getcwd(buff, 1024));
 }

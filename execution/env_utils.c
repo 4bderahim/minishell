@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ael-krid <ael-krid@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mben-jad <mben-jad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 14:54:34 by ael-krid          #+#    #+#             */
-/*   Updated: 2024/08/16 14:54:50 by ael-krid         ###   ########.fr       */
+/*   Updated: 2024/09/06 22:53:20 by mben-jad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ t_env	*env_new(char *new_line)
 		new->value = NULL;
 	else
 	{
-		new->value = strdup(new_line + index);
+		new->value = ft_strdup(new_line + index);
 	}
 	new->next = NULL;
 	new->prev = NULL;

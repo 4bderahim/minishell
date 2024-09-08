@@ -3,32 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   lst_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ael-krid <ael-krid@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mben-jad <mben-jad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 14:54:34 by ael-krid          #+#    #+#             */
-/*   Updated: 2024/08/16 14:54:50 by ael-krid         ###   ########.fr       */
+/*   Updated: 2024/09/06 23:14:52 by mben-jad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-char	**n_env(t_all *all, char **env)
-{
-	int		i;
-	char	**envp;
-
-	i = 0;
-	while (env[i])
-		i++;
-	envp = (char **)malloc(sizeof(char *) * (i + 1));
-	if (!envp)
-	{
-		ft_lstclear(&all->cmd);
-		exit(1);
-	}
-	envp[i] = NULL;
-	return (envp);
-}
 
 void	free_e(char **envp)
 {
@@ -40,10 +22,29 @@ void	free_e(char **envp)
 	free(envp);
 }
 
-void	set_lists(t_all *all, char **env)
+char	**alloc_if_empty(t_all *all)
 {
-	int		i;
 	char	**envp;
+	char	cwd[1024];
+
+	envp = (char **)malloc(sizeof(char *) * 4);
+	if (!envp)
+	{
+		ft_lstclear(&all->cmd);
+		exit(1);
+	}
+	getcwd(cwd, sizeof(cwd));
+	envp[0] = ft_strjoin(ft_strdup("PWD="), cwd);
+	envp[1] = ft_strjoin(ft_strdup("SHLV="), "1");
+	envp[2] = ft_strjoin(ft_strdup("_="), "/usr/bin/env");
+	envp[3] = NULL;
+	return (envp);
+}
+
+char	**alloc_normal(t_all *all, char **env)
+{
+	char	**envp;
+	int		i;
 
 	i = 0;
 	envp = n_env(all, env);
@@ -52,6 +53,23 @@ void	set_lists(t_all *all, char **env)
 		envp[i] = ft_strdup(env[i]);
 		i++;
 	}
+	return (envp);
+}
+
+void	set_lists(t_all *all, char **env)
+{
+	char	**envp;
+ /*
+	set the inhereted envirement variables in two lists  (env/export)
+	to manage it in out new shell process!
+ */
+	if (*env == NULL)
+		{
+			// set them manualy if no variables inhereted!
+			envp = alloc_if_empty(all);
+		}
+	else
+		envp = alloc_normal(all, env);
 	all->env = create_env_list(envp);
 	if (all->env == NULL)
 	{

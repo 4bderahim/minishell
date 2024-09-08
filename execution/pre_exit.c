@@ -6,7 +6,7 @@
 /*   By: mben-jad <mben-jad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 14:54:34 by ael-krid          #+#    #+#             */
-/*   Updated: 2024/08/18 13:16:19 by mben-jad         ###   ########.fr       */
+/*   Updated: 2024/09/07 02:24:23 by mben-jad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,13 @@ void	free_vars(t_all *all)
 	free(all->_vars->pids);
 }
 
-void	ft_error(t_all *all)
+void	ft_error(t_all *all, int child)
 {
-	int	cause_exit;
-
+	if (!child)
+	{
+		ft_write(strerror(errno), 2);
+		return ;
+	}
 	env_exp_lists_clear(all);
 	free_vars(all);
 	all->exit_status = 1;

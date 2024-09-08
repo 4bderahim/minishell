@@ -88,7 +88,7 @@ t_env	*new_empty_env(t_all *all)
 
 	env_new = (t_env *)malloc(sizeof(t_env));
 	if (!env_new)
-		ft_error(all);
+		ft_error(all, 0);
 	env_new->variable = NULL;
 	env_new->value = NULL;
 	env_new->prev = NULL;

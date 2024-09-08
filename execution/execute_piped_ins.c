@@ -3,19 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   execute_piped_ins.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ael-krid <ael-krid@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mben-jad <mben-jad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 14:54:34 by ael-krid          #+#    #+#             */
-/*   Updated: 2024/08/16 14:54:50 by ael-krid         ###   ########.fr       */
+/*   Updated: 2024/09/04 19:19:46 by mben-jad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #include "minishell.h"
 
-void	print_exp_list(t_all *all, int pipe[2])
+void	print_exp_list(t_all *all)
 {
 	t_exp	*tmp;
 	int		i;
-	char	*str;
 
 	tmp = all->exp;
 	i = 0;
@@ -36,10 +36,27 @@ void	print_exp_list(t_all *all, int pipe[2])
 	}
 }
 
+char	**n_env(t_all *all, char **env)
+{
+	int		i;
+	char	**envp;
+
+	i = 0;
+	while (env[i])
+		i++;
+	envp = (char **)malloc(sizeof(char *) * (i + 1));
+	if (!envp)
+	{
+		ft_lstclear(&all->cmd);
+		exit(1);
+	}
+	envp[i] = NULL;
+	return (envp);
+}
+
 void	print_env_list(t_all *all)
 {
 	t_env	*tmp;
-	int		i;
 
 	tmp = all->env;
 	while (tmp != NULL)
@@ -52,19 +69,17 @@ void	print_env_list(t_all *all)
 	}
 }
 
-void	exec_piped_built_ins(t_all *all, int pipes[2])
+void	exec_piped_built_ins(t_all *all)
 {
-	int		i;
-	char	*str;
-
-	i = 0;
-	if (match_word(all->cmd->cmd, "echo"))
+	if (match_word(all->cmd->cmd, "echo") || match_word(all->cmd->cmd, "ECHO"))
 		ft_echo(all->cmd->args + 1, STDOUT_FILENO);
-	else if (match_word(all->cmd->cmd, "env"))
+	else if (match_word(all->cmd->cmd, "env") || match_word(all->cmd->cmd,
+			"ENV"))
 		print_env_list(all);
 	else if (match_word(all->cmd->cmd, "export") && all->cmd->args[1] == NULL)
-		print_exp_list(all, pipes);
-	else if (match_word(all->cmd->cmd, "pwd"))
+		print_exp_list(all);
+	else if (match_word(all->cmd->cmd, "pwd") || match_word(all->cmd->cmd,
+			"PWD"))
 		ft_pwd(all);
 	else
 		return ;

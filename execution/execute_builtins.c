@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_builtins.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ael-krid <ael-krid@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mben-jad <mben-jad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 14:54:34 by ael-krid          #+#    #+#             */
-/*   Updated: 2024/08/16 14:54:50 by ael-krid         ###   ########.fr       */
+/*   Updated: 2024/09/07 02:42:44 by mben-jad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int	handle_exit(t_all *all)
 		if (all->cmd->args[2])
 		{
 			ft_write("minishell: too many arguments\n", 2);
-			all->exit_status = 255;
+			all->exit_status = 1;
 			return (1);
 		}
 		if (!all->pipes_num)

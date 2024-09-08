@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_heredoc__.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ael-krid <ael-krid@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mben-jad <mben-jad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 14:54:34 by ael-krid          #+#    #+#             */
-/*   Updated: 2024/08/16 14:54:50 by ael-krid         ###   ########.fr       */
+/*   Updated: 2024/09/07 00:19:17 by mben-jad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,10 +50,9 @@ char	*fill_full_str(char *full_str, char *input, t_all *all)
 {
 	full_str = ft_strjoin(full_str, input);
 	if (full_str == NULL)
-		ft_error(all);
+		ft_error(all, 1);
 	if (get_vars_length(full_str) > 0)
-		full_str = ft_strjoin(handle_variables(full_str, all->env,
-					get_vars_length(full_str), all), "\n");
+		full_str = ft_strjoin(handle_variables(full_str, all->env, all), "\n");
 	else
 		full_str = ft_strjoin(full_str, "\n");
 	free(input);
@@ -67,20 +66,20 @@ char	*heredoc(char *heredoc_str, t_all *all)
 
 	full_str = (char *)malloc(1);
 	if (!full_str)
-		ft_error(all);
+		ft_error(all, 1);
 	full_str[0] = 0;
 	while (1)
 	{
 		input = readline(">>");
 		if (!input)
 			exit(0);
-		if (!match_word(input, heredoc_str))
-			full_str = fill_full_str(full_str, input, all);
-		else
+		if ((ft_strlen(heredoc_str) == 0 && ft_strlen(input) == 0)
+			|| match_word(input, heredoc_str))
 		{
 			free(input);
 			break ;
 		}
+		full_str = fill_full_str(full_str, input, all);
 	}
 	return (full_str);
 }
@@ -94,7 +93,7 @@ void	heredoc_(t_cmd *doc, t_all *all)
 
 	doc->heredoc_content = ft_strdup("");
 	i = 0;
-	while (doc->heredoc_delimiter[i])
+	while (doc->heredoc_delimiter[i] && !g_signaled)
 	{
 		here_tmp = ft_strdup("");
 		here_tmp = heredoc(doc->heredoc_delimiter[i], all);

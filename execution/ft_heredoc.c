@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_heredoc.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ael-krid <ael-krid@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mben-jad <mben-jad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 14:54:34 by ael-krid          #+#    #+#             */
-/*   Updated: 2024/08/16 14:54:50 by ael-krid         ###   ########.fr       */
+/*   Updated: 2024/09/07 03:09:49 by mben-jad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void	read_heredoc_input(int *pipefd, t_cmd *cmd, t_all *all)
 	{
 		buffer = (char *)shell_calloc(sizeof(char), 1001);
 		if (!buffer)
-			ft_error(all);
+			ft_error(all, 1);
 		buffer[1000] = 0;
 		read_ret = read(pipefd[0], buffer, 1000);
 		cmd->heredoc_content = ft_strjoin(cmd->heredoc_content, buffer);
@@ -42,26 +42,28 @@ void	read_heredoc_input(int *pipefd, t_cmd *cmd, t_all *all)
 
 void	heredoc_ing(t_cmd *cmd, t_all *all)
 {
-	char	*buffer;
 	int		read_ret;
 	pid_t	pid;
 	int		pipefd[2];
+	int		status;
 
 	read_ret = 1;
 	if (pipe(pipefd) == -1)
-		ft_error(all);
+		ft_error(all, 1);
 	pid = fork();
 	if (pid < 0)
-		ft_error(all);
+		ft_error(all, 1);
 	if (pid == 0)
-		heredoc_child(pipefd, cmd, all);
+		{
+			heredoc_child(pipefd, cmd, all);
+		}
 	else
 	{
 		close(pipefd[1]);
 		read_heredoc_input(pipefd, cmd, all);
 		close(pipefd[0]);
 	}
-	waitpid(pid, NULL, 0);
+	waitpid(pid, &status, 0);
 }
 
 void	heredoc_check(t_all *all)
@@ -69,10 +71,12 @@ void	heredoc_check(t_all *all)
 	t_cmd	*doc;
 
 	doc = all->cmd;
-	while (doc != NULL)
+	g_signaled = 0;
+	while (doc != NULL && !g_signaled)
 	{
 		if (doc->heredoc_delimiter != NULL)
 			heredoc_ing(doc, all);
 		doc = doc->next;
 	}
+	all->exit_status = g_signaled;
 }

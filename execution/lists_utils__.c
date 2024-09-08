@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lists_utils__.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ael-krid <ael-krid@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mben-jad <mben-jad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 14:54:34 by ael-krid          #+#    #+#             */
-/*   Updated: 2024/09/03 22:24:08 by ael-krid         ###   ########.fr       */
+/*   Updated: 2024/09/06 22:15:05 by mben-jad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 void	alloc_new_env_node(t_all *all)
 {
 	t_env	*env_;
-	t_env	*env_tmp;
 	t_env	*env;
 	t_exp	*exp;
 
@@ -37,6 +36,14 @@ void	alloc_new_env_node(t_all *all)
 	all->env = env;
 }
 
+int	pwd_found(t_env *tmp)
+{
+	if (ft_strlen(tmp->variable) > 2 && tmp->variable[0] == 'P'
+		&& tmp->variable[1] == 'W' && tmp->variable[2] == 'D')
+		return (1);
+	return (0);
+}
+
 void	add_to_env_end(t_all *all, t_exp *exp)
 {
 	t_env	*env_last;
@@ -46,28 +53,43 @@ void	add_to_env_end(t_all *all, t_exp *exp)
 	env_last->next->prev = env_last;
 }
 
-void	mirroring_exp_and_env(t_all *all)
+int	matched__(t_all *all, t_exp *exp)
+{
+	t_env	*env;
+
+	env = env_getlast(all->env);
+	while (exp != NULL)
+	{
+		if (match_word(exp->variable, env->variable) && match_word(exp->value,
+				env->value))
+			return (1);
+		exp = exp->next;
+	}
+	return (0);
+}
+
+t_env	*set_env_list_(t_all *all)
 {
 	t_env	*env;
 	t_exp	*exp;
-	char	*prv;
+	t_env	*new;
 
-	env = all->env;
 	exp = all->exp;
-	if (env == NULL && exp != NULL)
-		alloc_new_env_node(all);
-	while (env != NULL && exp != NULL)
+	env = new_env_(exp);
+	exp = exp->next;
+	while (exp != NULL)
 	{
-		if (match_word(env->variable, exp->variable) & !match_word(env->value,
-				exp->value))
-		{
-			prv = env->value;
-			env->value = ft_strdup(exp->value);
-			free(prv);
-		}
+		new = new_env_(exp);
+		if (new == NULL)
+			return (NULL);
+		env_addback(env, new);
 		exp = exp->next;
-		env = env->next;
-		if (env == NULL && exp != NULL)
-			add_to_env_end(all, exp);
 	}
+	return (env);
+}
+
+void	mirroring_exp_and_env(t_all *all)
+{
+	free_env_list(all);
+	all->env = set_env_list_(all);
 }

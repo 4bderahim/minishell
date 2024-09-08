@@ -15,6 +15,7 @@
 int	unset_exp(t_all *all, t_exp *exp_, int ret)
 {
 	t_exp	*exp;
+	char	*last;
 
 	exp = all->exp;
 	while (exp != NULL)
@@ -23,7 +24,9 @@ int	unset_exp(t_all *all, t_exp *exp_, int ret)
 		{
 			if (ret == -1)
 				return (1);
+			last = exp->value;
 			exp->value = ft_strdup(exp_->value);
+			free(last);
 			mirroring_exp_and_env(all);
 			free(exp_->value);
 			free(exp_->variable);

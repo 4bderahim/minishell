@@ -5,15 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mben-jad <mben-jad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/12/14 17:38:52 by mben-jad          #+#    #+#             */
-/*   Updated: 2024/08/26 20:46:39 by mben-jad         ###   ########.fr       */
+/*   Created: 2024/09/02 19:37:19 by mben-jad          #+#    #+#             */
+/*   Updated: 2024/09/02 19:37:40 by mben-jad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-
-static	int	numlen(long int num)
+static int	numlen(long int num)
 {
 	int	i;
 
@@ -31,7 +30,7 @@ static	int	numlen(long int num)
 	return (i);
 }
 
-static	char	*ft_strrev(char *res)
+static char	*ft_strrev(char *res)
 {
 	size_t	i;
 	size_t	j;
@@ -50,7 +49,7 @@ static	char	*ft_strrev(char *res)
 	return (res);
 }
 
-static	char	*alloc_str(long int *num)
+static char	*alloc_str(long int *num)
 {
 	char	*res;
 	int		len;
