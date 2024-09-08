@@ -17,7 +17,7 @@ void	wait_ps(pid_t *pids, t_all *all)
 	int	i;
 	int	status;
 
-	// wait child every process and check its exit status
+	// wait every child process and check its exit status
 	i = 0;
 	while (i < all->nums_of_cmds)
 	{
@@ -45,12 +45,12 @@ int	execution_loop(t_vars *vars, int i, t_all *all)
 	because execve()  will replace the current process memory space
 	with a copy of the executable file opened by it,   
 	each command (other than built ins) will be executed using execve()
-	inside a child process , this will happen after redirect input/output depending on:
+	inside a child process to avoid exiting out shell, this will happen after redirect input/output depending on:
 	pipe ,(write/read) from regular files or heredoc
 	*/
-	if (pipe(pipe_sides) < 0)
-		ft_error(all, 0);
-	vars->pids[i] = fork();
+	if (pipe(pipe_sides) < 0) // create a pipe
+		ft_error(all, 0);	
+	vars->pids[i] = fork();// create a child process
 	if (vars->pids[i] < 0)
 		return (ft_error(all, 0), 0);
 	set_sigs();
