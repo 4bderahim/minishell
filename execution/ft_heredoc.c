@@ -14,7 +14,7 @@
 
 void	heredoc_child(int *_pipe, t_cmd *cmd, t_all *all)
 {
-	signal(SIGINT, SIG_DFL);
+	signal(SIGINT, SIG_DFL);// defau
 	close(_pipe[0]);
 	heredoc_(cmd, all);
 	write(_pipe[1], cmd->heredoc_content, ft_strlen(cmd->heredoc_content));
@@ -46,7 +46,11 @@ void	heredoc_ing(t_cmd *cmd, t_all *all)
 	pid_t	pid;
 	int		pipefd[2];
 	int		status;
+	/*
 
+	each heredoc command will be handled in a child process 
+	then the content from stdin will be written to a pipe.
+	*/
 	read_ret = 1;
 	if (pipe(pipefd) == -1)
 		ft_error(all, 1);
@@ -60,7 +64,7 @@ void	heredoc_ing(t_cmd *cmd, t_all *all)
 	else
 	{
 		close(pipefd[1]);
-		read_heredoc_input(pipefd, cmd, all);
+		read_heredoc_input(pipefd, cmd, all);// read the content from the pipe in the parent process
 		close(pipefd[0]);
 	}
 	waitpid(pid, &status, 0);
@@ -72,6 +76,10 @@ void	heredoc_check(t_all *all)
 
 	doc = all->cmd;
 	g_signaled = 0;
+	/*
+	if we have a command line with pipes the loop bellow checks every command for heredoc to store its upcoming content
+	all this will break once a SIGINT signal arrived which will set the global variable (g_signaled) in the heredoc signal handler.
+	*/
 	while (doc != NULL && !g_signaled)
 	{
 		if (doc->heredoc_delimiter != NULL)

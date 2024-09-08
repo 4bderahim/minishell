@@ -106,7 +106,7 @@ void	execution(t_all **alll, char *envpp[])
 	heredoc_check(all);
 	/* 
 	 check if there's only one command and it is a built-in one !
-	 exit executing id thats the case!
+	 exit executing if thats the case!
 	*/
 	if (!all->pipes_num && exec_built_ins(all))
 		return ;
