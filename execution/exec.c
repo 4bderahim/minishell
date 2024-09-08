@@ -42,8 +42,8 @@ int	execution_loop(t_vars *vars, int i, t_all *all)
 {
 	int	pipe_sides[2];
 	/*
-	because execev()  will replace the current process memory space
-	with a copy of the executable file open by it,   
+	because execve()  will replace the current process memory space
+	with a copy of the executable file opened by it,   
 	each command (other than built ins) will be executed using execve()
 	inside a child process , this will happen after redirect input/output depending on:
 	pipe ,(write/read) from regular files or heredoc
@@ -112,9 +112,9 @@ void	execution(t_all **alll, char *envpp[])
 		return ;
 	/*
 		ignore SIGINT in parent process 
-		because otherwise both child and parent process will receive the same signale 
-		and handle it an both return new prompt!
-		but we want to (exit in child process normally) bye defaulting signal actions in child process
+		because otherwise both child and parent processes will receive the same signal 
+		and handle it and both return new prompt!
+		but we want to (exit in child process normally) by defaulting signal actions in child process
 	*/
 	signal(SIGINT, SIG_IGN);
 	while (i < all->nums_of_cmds)
