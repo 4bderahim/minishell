@@ -81,7 +81,7 @@ void	redirect_in_out_to_pipe(int index, int pipe[], int *pr_fd, t_all *all)
 	}
 	if (index < all->nums_of_cmds - 1)
 	{
-		if (dup2(pipe[1], STDIN_FILENO) < 0)
+		if (dup2(pipe[1], STDOUT_FILENO) < 0)
 			ft_error(all, 1);
 		close(pipe[1]);
 	}
